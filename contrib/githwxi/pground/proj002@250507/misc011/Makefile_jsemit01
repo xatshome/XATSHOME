@@ -1,0 +1,67 @@
+########################################################################
+########################################################################
+# Makefile for misc011
+########################################################################
+########################################################################
+CAT=cat
+CPF=cp -f
+ECHO=echo
+NODE=node
+PRINTF=printf
+PYTHON=python3
+########################################################################
+########################################################################
+all:: test
+########################################################################
+clean:: ; rm -f *~
+########################################################################
+cleanall:: ; rm -f *~
+cleanall:: ; rm -f OUTS/*_cats.js
+cleanall:: ; rm -f OUTS/*_dats.js
+cleanall:: ; rm -f OUTS/test_out.js
+########################################################################
+XATSHOME=./../../../../../../XATSHOME
+########################################################################
+#
+XATS2JSD=$(XATSHOME)/xassets/JS/xats2js
+#
+XATS2JS_JSEMIT01=\
+$(XATSHOME)/xassets/JS/xats2js/xats2js_jsemit01_ats2_opt1.js
+XATS2JS_JSEMIT01=\
+$(XATSHOME)/xassets/JS/xats2js/xats2js_jsemit01_ats3_opt1.js
+#
+########################################################################
+########################################################################
+test:: ; \
+$(PRINTF) "// %s\n" "`date`" > OUTS/$@_out.js
+test:: ; \
+$(CAT) $(XATS2JSD)/runtime/xats2js_js1emit.js >> OUTS/$@_out.js
+test:: ; \
+$(CAT) $(XATS2JSD)/runtime/srcgen2_precats.js >> OUTS/$@_out.js
+test:: ; \
+$(CAT) $(XATS2JSD)/runtime/srcgen2_prelude.js >> OUTS/$@_out.js
+test:: ggrph
+ggrph: ggrph.dats; \
+$(NODE) --stack-size=8802 $(XATS2JS_JSEMIT01) $< >> OUTS/test_out.js
+test:: doublets
+doublets: doublets.dats; \
+$(NODE) --stack-size=8802 $(XATS2JS_JSEMIT01) $< >> OUTS/test_out.js
+########################################################################
+embedded:: ; \
+$(CPF) JS_doublets.cats OUTS/JS_doublets_cats.js
+embedded:: ; \
+$(PRINTF) "// %s\n" "`date`" > OUTS/JS_doublets_dats.js
+embedded:: ; \
+$(CAT) $(XATS2JSD)/runtime/xats2js_js1emit.js >> OUTS/JS_doublets_dats.js
+embedded:: ; \
+$(CAT) $(XATS2JSD)/runtime/srcgen2_precats.js >> OUTS/JS_doublets_dats.js
+embedded:: ; \
+$(CAT) $(XATS2JSD)/runtime/srcgen2_prelude.js >> OUTS/JS_doublets_dats.js
+embedded:: \
+doublets.dats ; \
+$(NODE) --stack-size=8802 $(XATS2JS_JSEMIT01) $< >> OUTS/JS_doublets_dats.js
+embedded:: \
+JS_doublets.dats ; \
+$(NODE) --stack-size=8802 $(XATS2JS_JSEMIT01) $< >> OUTS/JS_doublets_dats.js
+########################################################################
+##################### end of [Makefile_jsemit01] #######################
