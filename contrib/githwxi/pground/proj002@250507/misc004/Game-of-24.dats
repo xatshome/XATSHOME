@@ -28,7 +28,7 @@ determines whether four given integers form a good quad or not.
 (* ****** ****** *)
 //
 #abstype
-rat_type // double
+rat_type == dflt
 //
 #typedef rat = rat_type
 //
