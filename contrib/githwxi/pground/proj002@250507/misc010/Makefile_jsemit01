@@ -20,15 +20,17 @@ cleanall:: ; rm -f OUTS/spelling_dats.js
 cleanall:: ; rm -f OUTS/JS_spelling_cats.js
 cleanall:: ; rm -f OUTS/JS_spelling_dats.js
 ########################################################################
-XATSHOME=./../../../../../../XATSHOME
+XATSHOME=\
+./../../../../../../XATSHOME
 ########################################################################
 #
-XATS2JSD=$(XATSHOME)/xassets/JS/xats2js
+XATS2JSD=\
+$(XATSHOME)/xassets/JS/xats2js
 #
 XATS2JS_JSEMIT01=\
-$(XATSHOME)/xassets/JS/xats2js/xats2js_jsemit01_ats2_opt1.js
+$(XATSHOME)/xassets/JS/xats2js/bin/xats2js_jsemit01_ats2_opt1.js
 XATS2JS_JSEMIT01=\
-$(XATSHOME)/xassets/JS/xats2js/xats2js_jsemit01_ats3_opt1.js
+$(XATSHOME)/xassets/JS/xats2js/bin/xats2js_jsemit01_ats3_opt1.js
 #
 ########################################################################
 test:: spelling
@@ -55,4 +57,7 @@ embedded:: \
 JS_spelling.dats ; \
 $(NODE) --stack-size=8802 $(XATS2JS_JSEMIT01) $< >> OUTS/JS_spelling_dats.js
 ########################################################################
+########################################################################
 ##################### end of [Makefile_jsemit01] #######################
+########################################################################
+########################################################################
