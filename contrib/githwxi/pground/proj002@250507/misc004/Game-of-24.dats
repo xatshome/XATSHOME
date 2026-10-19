@@ -27,10 +27,8 @@ determines whether four given integers form a good quad or not.
 (* ****** ****** *)
 (* ****** ****** *)
 //
-#typedef
-rat = double
 #abstype
-rat_type == rat
+rat_type // double
 //
 #typedef rat = rat_type
 //
@@ -370,6 +368,9 @@ println("The solutions found:");
 list_foritm$f1un(sols, lam(sol) => println(sol)))
 //
 end(*let*)//end-of-[GameOf24_solve$print(n1,n2,n3,n4)]
+//
+(* ****** ****** *)
+(* ****** ****** *)
 //
 (*
 val () = GameOf24_solve$print(3, 3, 8, 8)
