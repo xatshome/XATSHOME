@@ -24,4 +24,4 @@ jobs:
         with:
           node-version: 20
       - name: Run project workflow
-        run: ./travis-ci/run-travis.sh
+        run: ./.github/workflows/run-workflow.sh
