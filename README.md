@@ -1,6 +1,10 @@
 # XATSHOME
 For hosting ATS3 and developing CodeDepot
 
+## Build Status
+
+[![Build Status](https://app.travis-ci.com/xatshome/XATSHOME.svg?branch=main)](https://app.travis-ci.com/xatshome/XATSHOME)
+
 ## Project Description
 
 ATS3 refers to the third edition of ATS, which is currently
