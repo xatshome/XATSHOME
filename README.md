@@ -3,7 +3,9 @@ For hosting ATS3 and developing CodeDepot
 
 ## Build Status
 
-[![Build Status](https://app.travis-ci.com/xatshome/XATSHOME.svg?branch=main)](https://app.travis-ci.com/xatshome/XATSHOME)
+[![Test XATSHOME](https://github.com/xatshome/XATSHOME/actions/workflows/main.yml/badge.svg)](https://github.com/xatshome/XATSHOME/actions/workflows/main.yml)
+
+This status is obtained from the XATSHOME GitHub Actions workflow defined in `.github/workflows/main.yml`.
 
 ## Project Description
 
