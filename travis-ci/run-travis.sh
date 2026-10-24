@@ -2,7 +2,8 @@
 set -eu
 ##################################################################
 #
-# Resolve the XATSHOME repository root from this script's location.
+# Resolve the XATSHOME repository root from this script's location
+# in [travis-ci/run-travis.sh]
 #
 travis_dir=\
 $(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -17,5 +18,7 @@ cd "$myrepo_root"
 exec make -f ./Makefile_workflow "$@"
 
 ##################################################################
+##################################################################
 #####################(end-of-[run-travis.sh])#####################
+##################################################################
 ##################################################################
