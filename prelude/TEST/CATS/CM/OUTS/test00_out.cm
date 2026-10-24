@@ -1,0 +1,1549 @@
+;; Sun Aug 16 12:17:12 PM EDT 2026
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; HX-2026-07-03:
+;; ATS3-XANADU/srcgen2/xats2cm/srcgen1
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define XATSTOP0 #f)
+;;
+(define XATSVOID #f)
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define (XATSINT0 i0) i0)
+(define (XATSINT1 i0) i0)
+;;
+(define (XATSBTF0 b0) b0)
+(define (XATSBOOL b0) b0)
+;;
+(define (XATSCNUL) 0)
+(define (XATSCHR1) 0)
+(define (XATSCHAR c0) c0)
+;;
+(define
+  (XATSCHR0 ch)
+  (char->integer (string-ref ch 0)))
+(define
+  (XATSCHR2 ch)
+  (char->integer (string-ref ch 0)))
+;;
+(define (XATSCHR3 ch)
+  (let* ((c1 (string-ref ch 1))
+         (d1 (char->integer c1))
+         (n1 (string-length ch)))
+    (cond
+      ;; ord('0') = 48
+      ;; ord('7') = 55
+      ;; e.g. "\(" or "\)"
+      ((< d1 48) d1)
+      ((> d1 55) d1)
+      ;; "\ddd" : octal
+      (else
+       (let loop ((i1 2)
+                  (ds (- c1 48)))
+         (if (>= i1 n1)
+             ds ;; (integer->char ds)
+             (let* ((c1 (string-ref ch i1))
+		    (d1 (char->integer c1)))
+               (if (char=? c1 #\')
+                   ds ;; (integer->char ds)
+                   (loop (+ i1 1)
+                         (+ (* 8 ds) (- d1 48)))))))))))
+;;
+(define (XATSFLT0 f0) f0)
+(define (XATSFLT1 f0) f0)
+;;
+(define (XATSSTR0 cs) cs)
+(define (XATSSTRN cs) cs)
+;;
+(define (XATSSFLT sf) (string->number sf))
+(define (XATSDFLT df) (string->number df))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+#|
+(define
+(XATSCAST name arg1 . args) arg1)
+(define
+(XATSCAPP name ctag . args) (apply vector ctag args))
+|#
+(define-syntax XATSCAST
+  (syntax-rules () ((_ name arg1 args ...) arg1)))
+(define-syntax XATSCAPP
+  (syntax-rules ()
+    ((_ name ctag args ...) (vector ctag args ...))))
+;;
+#|
+(define
+(XATSDAPP dfun . args) (apply dfun args))
+|#
+(define-syntax XATSDAPP
+  (syntax-rules () ((_ dfun args ...) (dfun args ...))))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+(XATSPFLT tflt offs)
+(cond
+ ((vector? tflt)
+  (vector-ref tflt offs))
+ (else
+  (let srch ((kxs tflt))
+    (if (pair? kxs)
+	(let ((kx (car kxs)))
+	  (if (eq? (car kx) offs)
+	      (cdr kx) (srch (cdr kxs)))) #f)))))
+;;
+(define
+(XATSPROJ tbox offs)
+(cond
+ ((vector? tbox)
+  (vector-ref tbox offs))
+ (else
+  (let srch ((kxs tbox))
+    (if (pair? kxs)
+	(let ((kx (car kxs)))
+	  (if (eq? (car kx) offs)
+	      (cdr kx) (srch (cdr kxs)))) #f))))
+)
+;;
+(define
+(XATSP0RJ p0rj offs) (vector-ref p0rj offs))
+(define
+(XATSP1RJ _ p1rj offs) (vector-ref p1rj offs))
+;;
+(define
+(XATSPCON pcon argi)
+(let ((offs (+ argi 1))) (vector-ref pcon offs)))
+;;
+(define
+(XATSP1CN tknd p1cn offs) (vector-ref p1cn offs))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define (XATSTRCD knd0) knd0)
+;;
+(define
+(XATSTUP0 . tpl0) (apply vector tpl0))
+(define
+(XATSTUP1 tknd . tpl1) (apply vector tpl1))
+;;
+(define (XATSRCD2 tknd . rcd2) (apply list rcd2))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define (XATSROOT x) (vector 0 x))
+(define (XATSLPFT i x) (vector (+ 1 0) x i))
+(define (XATSLPBX i x) (vector (+ 1 1) x i))
+(define (XATSLPCN i x) (vector (+ 1 2) x (+ i 1)))
+;;
+(define (XATSVAR0) (XATSROOT (vector #f)))
+(define (XATSVAR1 init) (XATSROOT (vector init)))
+;;
+(define (XATSADDR addr) addr)
+(define (XATSFLAT addr) (XATS000_lvget addr))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define-syntax XATSLAM0
+  (syntax-rules () ((_ f) f)))
+(define-syntax XATSFIX0
+  (syntax-rules () ((_ f fdef) (letrec ((f fdef)) f))))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define (XATSCTAG _ t) t)
+;;
+(define (XATS000_inteq x y) (= x y))
+(define (XATS000_chreq x y) (= x y))
+(define (XATS000_btfeq x y) (eq? x y))
+;;
+(define (XATS000_streq x y) (string=? x y))
+(define (XATS000_ctgeq v t) (= (vector-ref v 0) t))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+  (XATS2CM_optn_nil)
+  (XATSCAPP "optn_nil" 0))
+(define
+  (XATS2CM_optn_cons x0)
+  (XATSCAPP "optn_cons" 1 x0))
+;;
+(define
+  (XATS2CM_list_nil)
+  (XATSCAPP "list_nil" 0))
+(define
+  (XATS2CM_list_cons x0 xs)
+  (XATSCAPP "list_cons" 1 x0 xs))
+;;
+(define
+  (XATS2CM_optn_vt_nil)
+  (XATSCAPP "optn_vt_nil" 0))
+(define
+  (XATS2CM_optn_vt_cons x0)
+  (XATSCAPP "optn_vt_cons" 1 x0))
+;;
+(define
+  (XATS2CM_list_vt_nil)
+  (XATSCAPP "list_vt_nil" 0))
+(define
+  (XATS2CM_list_vt_cons x0 xs)
+  (XATSCAPP "list_vt_cons" 1 x0 xs))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define (XATS000_casef)
+  (error "XATS000_casef" #f))
+;;
+(define (XATS000_patck pck)
+  (if (not pck) (error "XATS000_patck" #f)))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define (XATS000_fold pcon) #f)
+(define (XATS000_free pcon) #f)
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+  (XATS000_dp2tr p2tr)
+  (XATS000_lvget p2tr))
+;;
+(define
+  (XATS000_assgn lval rval)
+  (XATS000_lvset! lval rval))
+;;
+(define
+  (XATS000_l0azy lfun) (vector 0 lfun))
+;;
+(define
+  (XATS000_dl0az l0az)
+  (let ((t (vector-ref l0az 0)))
+    (if (> t 0)
+	(let ((_ (vector-set! l0az 0 (+ t 1))))
+	  (vector-ref l0az 1))
+	(let ((_ (vector-set! l0az 0 (+ 0 1))))
+	  (let* ((res ((vector-ref l0az 1)))
+		 (_ (vector-set! l0az 1 res))) res)))))
+;;
+(define (XATS000_l1azy lfun) lfun)
+(define (XATS000_dl1az l1az) (l1az 1))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+(XATS000_lvget lval)
+  (let ((ctag (vector-ref lval 0)))
+    (cond
+     ((= ctag 0)
+      (vector-ref (vector-ref lval 1) 0))
+     ((= ctag (+ 1 0))
+      (let* (
+       (val1 (vector-ref lval 1))
+       (idx2 (vector-ref lval 2)))
+       (vector-ref (XATS000_lvget val1) idx2)))
+     ((= ctag (+ 1 1))
+      (let* ((val1 (vector-ref lval 1))
+	     (idx2 (vector-ref lval 2))) (vector-ref val1 idx2)))
+     ((= ctag (+ 1 2))
+      (let* ((val1 (vector-ref lval 1))
+	     (idx2 (vector-ref lval 2))) (vector-ref val1 idx2)))
+     (else (error "XATS000_lvget" lval)))))
+;;
+(define
+(XATS000_lvset! lval rval)
+  (let ((ctag (vector-ref lval 0)))
+    (cond
+     ((= ctag 0)
+      (let (
+	(val1 (vector-ref lval 1)))
+	(vector-set! val1 0 rval)))
+     ((= ctag (+ 1 0))
+      (let* ((val1 (vector-ref lval 1))
+	     (idx2 (vector-ref lval 2))
+	     (lvl1 (XATS000_lvget val1)))
+	(XATS000_lvset! lvl1 (XATS000_ftset lvl1 idx2 rval))))
+     ((= ctag (+ 1 1))
+      (let* ((val1 (vector-ref lval 1))
+	     (idx2 (vector-ref lval 2))) (vector-set! val1 idx2 rval)))
+     ((= ctag (+ 1 2))
+      (let* ((val1 (vector-ref lval 1))
+	     (idx2 (vector-ref lval 2))) (vector-set! val1 idx2 rval)))
+     (else (error "XATS000_lvset!" lval rval)))))
+;;
+(define
+(XATS000_ftset tpl0 idx1 rval)
+  (let ((tpl1 (vector-copy tpl0)))
+    (begin (vector-set! tpl1 idx1 rval) tpl1)))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define (XATS000_raise vexn) (raise-continuable vexn))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; the end of
+;; [ATS3-XANADU/srcgen2/xats2cm/srcgen1/xshared/runtime/xats2cm_cm1emit.cm]
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; Fri Aug  7 09:12:22 PM EDT 2026
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; the beg of
+;; [ATS3-XANADU
+;; /srcgen2/xats2cm/srcgen1/xshared/runtime/srcgen2_prelude.scm]
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;                                                                    ;;.
+;;                         Applied Type System                        ;;.
+;;                                                                    ;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+
+;;
+;; ATS/Xanadu - Unleashing the Potential of Types!
+;; Copyright (C) 2026 Hongwei Xi, ATS Trustful Software, Inc.
+;; All rights reserved
+;;
+;; ATS is free software;  you can  redistribute it and/or modify it under
+;; the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+;; Free Software Foundation; either version 3, or (at  your  option)  any
+;; later version.
+;; 
+;; ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+;; WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+;; for more details.
+;; 
+;; You  should  have  received  a  copy of the GNU General Public License
+;; along  with  ATS;  see the  file COPYING.  If not, please write to the
+;; Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+;; 02110-1301, USA.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; Author: Hongwei Xi
+;; Mon Jun 29 08:28:00 AM EDT 2026
+;; Authoremail: gmhwxiATgmailDOTcom
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; end of [ATS3/XANADU_prelude_DATS_CATS_CM_xtop000.cats]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;                                                                    ;;.
+;;                         Applied Type System                        ;;.
+;;                                                                    ;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+
+;;
+;; ATS/Xanadu - Unleashing the Potential of Types!
+;; Copyright (C) 2026 Hongwei Xi, ATS Trustful Software, Inc.
+;; All rights reserved
+;;
+;; ATS is free software;  you can  redistribute it and/or modify it under
+;; the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+;; Free Software Foundation; either version 3, or (at  your  option)  any
+;; later version.
+;; 
+;; ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+;; WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+;; for more details.
+;; 
+;; You  should  have  received  a  copy of the GNU General Public License
+;; along  with  ATS;  see the  file COPYING.  If not, please write to the
+;; Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+;; 02110-1301, USA.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; Author: Hongwei Xi
+;; Mon Jun 29 08:43:53 AM EDT 2026
+;; Authoremail: gmhwxiATgmailDOTcom
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; end of [ATS3/XANADU_prelude_DATS_CATS_CM_gbas000.cats]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;                                                                    ;;.
+;;                         Applied Type System                        ;;.
+;;                                                                    ;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+
+;;
+;; ATS/Xanadu - Unleashing the Potential of Types!
+;; Copyright (C) 2025 Hongwei Xi, ATS Trustful Software, Inc.
+;; All rights reserved
+;;
+;; ATS is free software;  you can  redistribute it and/or modify it under
+;; the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+;; Free Software Foundation; either version 3, or (at  your  option)  any
+;; later version.
+;; 
+;; ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+;; WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+;; for more details.
+;; 
+;; You  should  have  received  a  copy of the GNU General Public License
+;; along  with  ATS;  see the  file COPYING.  If not, please write to the
+;; Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+;; 02110-1301, USA.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; Author: Hongwei Xi
+;; Mon Jun 29 08:17:01 AM EDT 2026
+;; Authoremail: gmhwxiATgmailDOTcom
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_bool_assert_errmsg cond emsg)
+ (if (not cond)
+  (error "XATS2CM_bool_assert_errmsg" emsg)))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; end of [ATS3/XANADU_prelude_DATS_CATS_CM_gdbg000.cats]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;                                                                    ;;.
+;;                         Applied Type System                        ;;.
+;;                                                                    ;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+
+;;
+;; ATS/Xanadu - Unleashing the Potential of Types!
+;; Copyright (C) 2026 Hongwei Xi, ATS Trustful Software, Inc.
+;; All rights reserved
+;;
+;; ATS is free software;  you can  redistribute it and/or modify it under
+;; the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+;; Free Software Foundation; either version 3, or (at  your  option)  any
+;; later version.
+;; 
+;; ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+;; WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+;; for more details.
+;; 
+;; You  should  have  received  a  copy of the GNU General Public License
+;; along  with  ATS;  see the  file COPYING.  If not, please write to the
+;; Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+;; 02110-1301, USA.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; Author: Hongwei Xi
+;; Sun Jun 28 10:15:28 AM EDT 2026
+;; Authoremail: gmhwxiATgmailDOTcom
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define (XATS2CM_sint_neg i1) (- i1))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_sint_lt$sint i1 i2) (< i1 i2))
+(define
+ (XATS2CM_sint_gt$sint i1 i2) (> i1 i2))
+(define
+ (XATS2CM_sint_eq$sint i1 i2) (= i1 i2))
+;;
+(define
+ (XATS2CM_sint_lte$sint i1 i2) (<= i1 i2))
+(define
+ (XATS2CM_sint_gte$sint i1 i2) (>= i1 i2))
+(define
+ (XATS2CM_sint_neq$sint i1 i2) (not (= i1 i2)))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_sint_add$sint i1 i2) (+ i1 i2))
+(define
+ (XATS2CM_sint_sub$sint i1 i2) (- i1 i2))
+(define
+ (XATS2CM_sint_mul$sint i1 i2) (* i1 i2))
+;;
+(define
+ (XATS2CM_sint_mod$sint i1 i2) (modulo i1 i2))
+(define
+ (XATS2CM_sint_div$sint i1 i2) (quotient i1 i2))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_sint_print i0) (XATS2CM_strn_print (number->string i0)))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; end of [ATS3/XANADU_prelude_DATS_CATS_CM_gint000.cats]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;                                                                    ;;.
+;;                         Applied Type System                        ;;.
+;;                                                                    ;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+
+;;
+;; ATS/Xanadu - Unleashing the Potential of Types!
+;; Copyright (C) 2026 Hongwei Xi, ATS Trustful Software, Inc.
+;; All rights reserved
+;;
+;; ATS is free software;  you can  redistribute it and/or modify it under
+;; the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+;; Free Software Foundation; either version 3, or (at  your  option)  any
+;; later version.
+;; 
+;; ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+;; WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+;; for more details.
+;; 
+;; You  should  have  received  a  copy of the GNU General Public License
+;; along  with  ATS;  see the  file COPYING.  If not, please write to the
+;; Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+;; 02110-1301, USA.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; Author: Hongwei Xi
+;; Sun Jun 28 09:48:20 AM EDT 2026
+;; Authoremail: gmhwxiATgmailDOTcom
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+#|
+def XATS2CM_bool_lt(b1, b2):
+  return (b1 < b2) ;; HX: lt
+def XATS2CM_bool_gt(b1, b2):
+  return (b1 > b2) ;; HX: gt
+def XATS2CM_bool_eq(b1, b2):
+  return (b1 == b2) ;; HX: eq
+def XATS2CM_bool_lte(b1, b2):
+  return (b1 <= b2) ;; HX: lte
+def XATS2CM_bool_gte(b1, b2):
+  return (b1 >= b2) ;; HX: gte
+def XATS2CM_bool_neq(b1, b2):
+  return (b1 != b2) ;; HX: neq
+|#
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_bool_lt b1 b2) (if b1 #f b2))
+(define
+ (XATS2CM_bool_gt b1 b2) (if b2 #f b1))
+(define
+ (XATS2CM_bool_eq b1 b2) (if b1 b2 (not b2)))
+;;
+(define
+ (XATS2CM_bool_lte b1 b2) (if b1 b2 #t))
+(define
+ (XATS2CM_bool_gte b1 b2) (if b2 b1 #t))
+(define
+ (XATS2CM_bool_neq b1 b2) (if b1 (not b2) b2))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; end of [ATS3/XANADU_prelude_DATS_CATS_CM_bool000.cats]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;                                                                    ;;.
+;;                         Applied Type System                        ;;.
+;;                                                                    ;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+
+;;
+;; ATS/Xanadu - Unleashing the Potential of Types!
+;; Copyright (C) 2026 Hongwei Xi, ATS Trustful Software, Inc.
+;; All rights reserved
+;;
+;; ATS is free software;  you can  redistribute it and/or modify it under
+;; the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+;; Free Software Foundation; either version 3, or (at  your  option)  any
+;; later version.
+;; 
+;; ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+;; WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+;; for more details.
+;; 
+;; You  should  have  received  a  copy of the GNU General Public License
+;; along  with  ATS;  see the  file COPYING.  If not, please write to the
+;; Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+;; 02110-1301, USA.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; Author: Hongwei Xi
+;; Sun Jun 28 09:48:20 AM EDT 2026
+;; Authoremail: gmhwxiATgmailDOTcom
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_char_lt c1 c2) (< c1 c2))
+(define
+ (XATS2CM_char_gt c1 c2) (> c1 c2))
+(define
+ (XATS2CM_char_eq c1 c2) (= c1 c2))
+;;
+(define
+ (XATS2CM_char_lte c1 c2) (<= c1 c2))
+(define
+ (XATS2CM_char_gte c1 c2) (>= c1 c2))
+(define
+ (XATS2CM_char_neq c1 c2) (not (= c1 c2)))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_char_sub$char c1 c2) (- c1 c2))
+(define
+ (XATS2CM_char_add$sint c1 i2) (modulo (+ c1 i2) 256))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; HX-2026-01-17:
+;; Sat Jan 17 09:51:13 PM EST 2026
+;;
+(define (XATS2CM_char_make_sint i0) i0)
+(define (XATS2CM_sint_make_char ch) ch)
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; HX-2026-06-28:
+;; Sun Jun 28 11:22:14 AM EDT 2026
+;;
+(define
+ (XATS2CM_char_print c0)
+ (XATS2CM_strn_print (string (integer->char c0))))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; end of [ATS3/XANADU_prelude_DATS_CATS_CM_char000.cats]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;                                                                    ;;.
+;;                         Applied Type System                        ;;.
+;;                                                                    ;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+
+;;
+;; ATS/Xanadu - Unleashing the Potential of Types!
+;; Copyright (C) 2026 Hongwei Xi, ATS Trustful Software, Inc.
+;; All rights reserved
+;;
+;; ATS is free software;  you can  redistribute it and/or modify it under
+;; the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+;; Free Software Foundation; either version 3, or (at  your  option)  any
+;; later version.
+;; 
+;; ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+;; WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+;; for more details.
+;; 
+;; You  should  have  received  a  copy of the GNU General Public License
+;; along  with  ATS;  see the  file COPYING.  If not, please write to the
+;; Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+;; 02110-1301, USA.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; Author: Hongwei Xi
+;; Sun Jun 28 10:31:58 AM EDT 2026
+;; Authoremail: gmhwxiATgmailDOTcom
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_dflt_neg df) (- df))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_dflt_abs df) (abs df))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_dflt_sqrt df) (sqrt df))
+(define
+ (XATS2CM_dflt_cbrt df) (expt df (/ 1.0 3.0)))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_dflt_lt_dflt f1 f2) (< f1 f2))
+(define
+ (XATS2CM_dflt_gt_dflt f1 f2) (> f1 f2))
+(define
+ (XATS2CM_dflt_eq_dflt f1 f2) (= f1 f2))
+;;
+(define
+ (XATS2CM_dflt_lte_dflt f1 f2) (<= f1 f2))
+(define
+ (XATS2CM_dflt_gte_dflt f1 f2) (>= f1 f2))
+(define
+ (XATS2CM_dflt_neq_dflt f1 f2) (not (= f1 f2)))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_dflt_add_dflt f1 f2) (+ f1 f2))
+(define
+ (XATS2CM_dflt_sub_dflt f1 f2) (- f1 f2))
+(define
+ (XATS2CM_dflt_mul_dflt f1 f2) (* f1 f2))
+;;
+(define
+ (XATS2CM_dflt_div_dflt f1 f2) (/ f1 f2))
+(define
+ (XATS2CM_dflt_mod_dflt f1 f2) (- f1 (* f2 (floor (/ f1 f2)))))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define (XATS2CM_dflt_ceil df) (ceiling df))
+(define (XATS2CM_dflt_floor df) (floor df))
+(define (XATS2CM_dflt_round df) (round df))
+(define (XATS2CM_dflt_trunc df) (truncate df))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; end of [ATS3/XANADU_prelude_DATS_CATS_CM_gflt000.cats]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;                                                                    ;;.
+;;                         Applied Type System                        ;;.
+;;                                                                    ;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+
+;;
+;; ATS/Xanadu - Unleashing the Potential of Types!
+;; Copyright (C) 2026 Hongwei Xi, ATS Trustful Software, Inc.
+;; All rights reserved
+;;
+;; ATS is free software;  you can  redistribute it and/or modify it under
+;; the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+;; Free Software Foundation; either version 3, or (at  your  option)  any
+;; later version.
+;; 
+;; ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+;; WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+;; for more details.
+;; 
+;; You  should  have  received  a  copy of the GNU General Public License
+;; along  with  ATS;  see the  file COPYING.  If not, please write to the
+;; Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+;; 02110-1301, USA.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; Author: Hongwei Xi
+;; Sun Jun 28 08:00:53 PM EDT 2026
+;; Authoremail: gmhwxiATgmailDOTcom
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+  (XATS2CM_strn_cmp x1 x2)
+  (cond
+   ((string<? x1 x2) -1)
+   ((string=? x1 x2)  0) (else 1)))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+(XATS2CM_strn_length cs) (string-length cs))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define (XATS2CM_strn_print cs) (display cs))
+(define (XATS000_strn_print cs) (display cs))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+  (XATS2CM_strn_get$at$raw cs i0)
+  (let ((c0 (string-ref cs i0))) (char->integer c0)))
+(define
+  (XATS000_strn_get$at$raw cs i0)
+  (let ((c0 (string-ref cs i0))) (char->integer c0)))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+  (XATS000_strn_make_fwork fwork)
+  (XATS2CM_strn_make_fwork fwork))
+;;
+#|
+def \
+XATS2PY_strn_make_fwork(fwork):
+  res = []
+  fwork(lambda ch: res.append(chr(ch)))
+  return "".join(res)
+def \
+XATS000_strn_make_fwork(fwork):
+  return XATS2PY_strn_make_fwork(fwork)
+|#
+;;
+(define
+  (XATS2CM_strn_make_fwork fwork)
+  (let ((res '()))
+    (fwork (lambda (ch)
+             (set! res (cons (integer->char ch) res))))
+    (list->string (reverse res))))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+  (XATS000_strn_make_env$fwork env fwork)
+  (XATS2CM_strn_make_env$fwork env fwork))
+(define
+  (XATS000_strn_make1_env$fwork env fwork)
+  (XATS2CM_strn_make1_env$fwork env fwork))
+;;
+#|
+def \
+XATS2PY_strn_make_env_fwork(env, fwork):
+  res = []
+  fwork(env, lambda ch: res.append(chr(ch)))
+  return "".join(res)
+def \
+XATS2PY_strn_make1_env_fwork(env, fwork):
+  res = []
+  fwork(env, lambda ch: res.append(chr(ch)))
+  return "".join(res)
+|#
+;;
+(define
+  (XATS2CM_strn_make_env$fwork env fwork)
+  (let ((res '()))
+    (fwork env
+	   (lambda (ch)
+	     (set! res (cons (integer->char ch) res))))
+    (list->string (reverse res))))
+;;
+(define
+  (XATS2CM_strn_make1_env$fwork env fwork)
+  (let ((res '()))
+    (fwork env
+	   (lambda (ch)
+	     (set! res (cons (integer->char ch) res))))
+    (list->string (reverse res))))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; end of [ATS3/XANADU_prelude_DATS_CATS_CM_strn000.cats]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;                                                                    ;;.
+;;                         Applied Type System                        ;;.
+;;                                                                    ;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+
+;;
+;; ATS/Xanadu - Unleashing the Potential of Types!
+;; Copyright (C) 2026 Hongwei Xi, ATS Trustful Software, Inc.
+;; All rights reserved
+;;
+;; ATS is free software;  you can  redistribute it and/or modify it under
+;; the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+;; Free Software Foundation; either version 3, or (at  your  option)  any
+;; later version.
+;; 
+;; ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+;; WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+;; for more details.
+;; 
+;; You  should  have  received  a  copy of the GNU General Public License
+;; along  with  ATS;  see the  file COPYING.  If not, please write to the
+;; Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+;; 02110-1301, USA.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; Author: Hongwei Xi
+;; Sun Jun 28 11:10:21 AM EDT 2026
+;; Authoremail: gmhwxiATgmailDOTcom
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; end of [ATS3/XANADU_prelude_DATS_CATS_CM_list000.cats]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;                                                                    ;;.
+;;                         Applied Type System                        ;;.
+;;                                                                    ;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+
+;;
+;; ATS/Xanadu - Unleashing the Potential of Types!
+;; Copyright (C) 2026 Hongwei Xi, ATS Trustful Software, Inc.
+;; All rights reserved
+;;
+;; ATS is free software;  you can  redistribute it and/or modify it under
+;; the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+;; Free Software Foundation; either version 3, or (at  your  option)  any
+;; later version.
+;; 
+;; ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+;; WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+;; for more details.
+;; 
+;; You  should  have  received  a  copy of the GNU General Public License
+;; along  with  ATS;  see the  file COPYING.  If not, please write to the
+;; Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+;; 02110-1301, USA.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; Author: Hongwei Xi
+;; Sun Jun 28 11:07:03 AM EDT 2026
+;; Authoremail: gmhwxiATgmailDOTcom
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; HX: It is yet to be populated!
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; end of [ATS3/XANADU_prelude_DATS_CATS_CM_optn000.cats]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;                                                                    ;;.
+;;                         Applied Type System                        ;;.
+;;                                                                    ;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+
+;;
+;; ATS/Xanadu - Unleashing the Potential of Types!
+;; Copyright (C) 2026 Hongwei Xi, ATS Trustful Software, Inc.
+;; All rights reserved
+;;
+;; ATS is free software;  you can  redistribute it and/or modify it under
+;; the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+;; Free Software Foundation; either version 3, or (at  your  option)  any
+;; later version.
+;; 
+;; ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+;; WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+;; for more details.
+;; 
+;; You  should  have  received  a  copy of the GNU General Public License
+;; along  with  ATS;  see the  file COPYING.  If not, please write to the
+;; Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+;; 02110-1301, USA.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; Author: Hongwei Xi
+;; Mon Jun 29 07:39:47 AM EDT 2026
+;; Authoremail: gmhwxiATgmailDOTcom
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; HX-2026-06-29: It is yet empty
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; end of [ATS3/XANADU_prelude_DATS_CATS_CM_strm000.cats]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;                                                                    ;;.
+;;                         Applied Type System                        ;;.
+;;                                                                    ;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+
+;;
+;; ATS/Xanadu - Unleashing the Potential of Types!
+;; Copyright (C) 2026 Hongwei Xi, ATS Trustful Software, Inc.
+;; All rights reserved
+;;
+;; ATS is free software;  you can  redistribute it and/or modify it under
+;; the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+;; Free Software Foundation; either version 3, or (at  your  option)  any
+;; later version.
+;; 
+;; ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+;; WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+;; for more details.
+;; 
+;; You  should  have  received  a  copy of the GNU General Public License
+;; along  with  ATS;  see the  file COPYING.  If not, please write to the
+;; Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+;; 02110-1301, USA.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; Author: Hongwei Xi
+;; Mon Jun 29 07:39:47 AM EDT 2026
+;; Authoremail: gmhwxiATgmailDOTcom
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; HX-2026-06-29: It is yet empty
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; end of [ATS3/XANADU_prelude_DATS_CATS_CM_strx000.cats]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;                                                                    ;;.
+;;                         Applied Type System                        ;;.
+;;                                                                    ;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+
+;;
+;; ATS/Xanadu - Unleashing the Potential of Types!
+;; Copyright (C) 2026 Hongwei Xi, ATS Trustful Software, Inc.
+;; All rights reserved
+;;
+;; ATS is free software;  you can  redistribute it and/or modify it under
+;; the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+;; Free Software Foundation; either version 3, or (at  your  option)  any
+;; later version.
+;; 
+;; ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+;; WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+;; for more details.
+;; 
+;; You  should  have  received  a  copy of the GNU General Public License
+;; along  with  ATS;  see the  file COPYING.  If not, please write to the
+;; Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+;; 02110-1301, USA.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; Author: Hongwei Xi
+;; Sun Jun 28 09:58:22 PM EDT 2026
+;; Authoremail: gmhwxiATgmailDOTcom
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+  (XATS2CM_a0rf_lget A) (vector-ref A 0))
+(define
+  (XATS2CM_a0rf_lset A x1) (vector-set! A 0 x1))
+;;
+(define
+ (XATS2CM_a0rf_make_1val x0) (vector x0))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+  (XATS2CM_a1rf_lget$at A i0) (vector-ref A i0))
+(define
+  (XATS2CM_a1rf_lset$at A i0 x1) (vector-set! A i0 x1))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+  (XATS2CM_a1rf_make_ncpy n0 x0) (make-vector n0 x0))
+;;
+(define
+  (XATS2CM_a1rf_make_nfun n0 fopr)
+  (let ((A0 (make-vector n0)))
+    (do ((i0 0 (+ i0 1)))
+	((= i0 n0) A0) (vector-set! A0 i0 (fopr i0)))))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; end of [ATS3/XANADU_prelude_DATS_CATS_CM_axrf000.cats]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;                                                                    ;;.
+;;                         Applied Type System                        ;;.
+;;                                                                    ;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+
+;;
+;; ATS/Xanadu - Unleashing the Potential of Types!
+;; Copyright (C) 2025 Hongwei Xi, ATS Trustful Software, Inc.
+;; All rights reserved
+;;
+;; ATS is free software;  you can  redistribute it and/or modify it under
+;; the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+;; Free Software Foundation; either version 3, or (at  your  option)  any
+;; later version.
+;; 
+;; ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+;; WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+;; for more details.
+;; 
+;; You  should  have  received  a  copy of the GNU General Public License
+;; along  with  ATS;  see the  file COPYING.  If not, please write to the
+;; Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+;; 02110-1301, USA.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+;; Author: Hongwei Xi
+;; Wed Jan  8 02:46:14 AM EST 2025
+;; Authoremail: gmhwxiATgmailDOTcom
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_a1sz_length A0) (vector-length A0))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_a1sz_lget$at A0 i0) (vector-ref A0 i0))
+(define
+ (XATS2CM_a1sz_lset$at A0 i0 x1) (vector-set! A0 i0 x1))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_a1sz_make_ncpy n0 x0) (make-vector n0 x0))
+;;
+(define
+ (XATS2CM_a1sz_make_nfun n0 fopr)
+ (let loop
+     ((i0 0)
+      (A0 (make-vector n0 #f)))
+   (if (>= i0 n0) A0
+       (begin (vector-set! A0 i0 (fopr i0)) (loop (+ i0 1) A0)))))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;
+(define
+ (XATS2CM_a1sz_make_fwork fwork)
+ (let ((xs '())) 
+   (begin
+     (fwork (lambda (x0) (set! xs (cons x0 xs))))
+     (list->vector (reverse! xs)))))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; end of [ATS3/XANADU_prelude_DATS_CATS_CM_axsz000.cats]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.
+;; LCSRCsome1(test00_prelude.dats)@(138(line=9,offs=1)--178(line=10,offs=28))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gdbg000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gdbg000.dats));...)))
+;; I1Dinclude(LCSRCsome1(test00_prelude.dats)@(222(line=14,offs=1)--263(line=15,offs=33)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(352(line=24,offs=1)--399(line=26,offs=28))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gdbg000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gdbg000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(446(line=31,offs=1)--493(line=33,offs=28))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gbas000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gbas000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(494(line=34,offs=1)--541(line=36,offs=28))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gbas001.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gbas001.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(542(line=37,offs=1)--589(line=39,offs=28))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gbas002.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gbas002.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(616(line=43,offs=1)--669(line=45,offs=34))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/gbas000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/gbas000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(670(line=46,offs=1)--723(line=48,offs=34))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/gbas001_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/gbas001_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(895(line=59,offs=1)--935(line=59,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gxyz000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gxyz000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(982(line=64,offs=1)--1022(line=64,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/unsfx00.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/unsfx00.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1166(line=73,offs=1)--1206(line=73,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gnum000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gnum000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1207(line=74,offs=1)--1247(line=74,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gord000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gord000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1248(line=75,offs=1)--1288(line=75,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gfun000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gfun000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1292(line=77,offs=1)--1332(line=77,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gseq000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gseq000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1333(line=78,offs=1)--1373(line=78,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gseq001.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gseq001.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1374(line=79,offs=1)--1414(line=79,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gseq002.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gseq002.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1418(line=81,offs=1)--1458(line=81,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gasq000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gasq000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1459(line=82,offs=1)--1499(line=82,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gasq001.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gasq001.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1500(line=83,offs=1)--1540(line=83,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gasq002.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gasq002.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1544(line=85,offs=1)--1584(line=85,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gmap000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gmap000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1585(line=86,offs=1)--1625(line=86,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gmap001.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gmap001.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1629(line=88,offs=1)--1669(line=88,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gcls000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gcls000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1670(line=89,offs=1)--1710(line=89,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gsyn000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gsyn000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1711(line=90,offs=1)--1751(line=90,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gsyn001.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gsyn001.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1778(line=94,offs=1)--1818(line=94,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/bool000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/bool000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1819(line=95,offs=1)--1859(line=95,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/char000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/char000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1860(line=96,offs=1)--1900(line=96,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gint000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gint000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1901(line=97,offs=1)--1941(line=97,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gint001.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gint001.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(1942(line=98,offs=1)--1982(line=98,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/gflt000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gflt000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2009(line=102,offs=1)--2049(line=102,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/strn000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/strn000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2050(line=103,offs=1)--2090(line=103,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/strn001.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/strn001.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2117(line=107,offs=1)--2157(line=107,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/axrf000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/axrf000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2158(line=108,offs=1)--2198(line=108,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/axrf001.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/axrf001.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2199(line=109,offs=1)--2239(line=109,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/axsz000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/axsz000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2240(line=110,offs=1)--2280(line=110,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/axsz001.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/axsz001.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2281(line=111,offs=1)--2321(line=111,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/asrt000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/asrt000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2322(line=112,offs=1)--2362(line=112,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/tupl000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/tupl000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2363(line=113,offs=1)--2403(line=113,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/tupl001.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/tupl001.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2404(line=114,offs=1)--2444(line=114,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/tupl002.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/tupl002.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2445(line=115,offs=1)--2485(line=115,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/list000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/list000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2486(line=116,offs=1)--2526(line=116,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/list001.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/list001.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2527(line=117,offs=1)--2567(line=117,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/list002.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/list002.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2568(line=118,offs=1)--2608(line=118,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/lsrt000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/lsrt000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2609(line=119,offs=1)--2649(line=119,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/optn000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/optn000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2650(line=120,offs=1)--2690(line=120,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/optn001.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/optn001.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2691(line=121,offs=1)--2731(line=121,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/strm000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/strm000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2732(line=122,offs=1)--2772(line=122,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/strm001.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/strm001.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2773(line=123,offs=1)--2813(line=123,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/strx000.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/strx000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2814(line=124,offs=1)--2854(line=124,offs=41))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/strx001.dats";27)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/strx001.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2901(line=129,offs=1)--2946(line=129,offs=46))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/gbas000.dats";32)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/gbas000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2950(line=131,offs=1)--2995(line=131,offs=46))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/bool000.dats";32)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/bool000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(2996(line=132,offs=1)--3041(line=132,offs=46))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/char000.dats";32)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/char000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3045(line=134,offs=1)--3090(line=134,offs=46))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/gint000.dats";32)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/gint000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3091(line=135,offs=1)--3136(line=135,offs=46))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/gflt000.dats";32)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/gflt000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3140(line=137,offs=1)--3185(line=137,offs=46))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/strn000.dats";32)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/strn000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3189(line=139,offs=1)--3234(line=139,offs=46))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/axrf000.dats";32)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/axrf000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3235(line=140,offs=1)--3280(line=140,offs=46))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/axsz000.dats";32)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/axsz000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3386(line=148,offs=1)--3432(line=148,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/gnum000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/gnum000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3433(line=149,offs=1)--3479(line=149,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/gord000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/gord000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3480(line=150,offs=1)--3526(line=150,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/gfun000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/gfun000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3527(line=151,offs=1)--3573(line=151,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/gcls000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/gcls000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3574(line=152,offs=1)--3620(line=152,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/gseq000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/gseq000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3621(line=153,offs=1)--3667(line=153,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/gseq001_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/gseq001_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3668(line=154,offs=1)--3714(line=154,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/gseq002_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/gseq002_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3715(line=155,offs=1)--3761(line=155,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/gasq000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/gasq000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3762(line=156,offs=1)--3808(line=156,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/gasq001_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/gasq001_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3809(line=157,offs=1)--3855(line=157,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/gsyn000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/gsyn000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3882(line=161,offs=1)--3928(line=161,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/strn000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/strn000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(3955(line=165,offs=1)--4001(line=165,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/axrf000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/axrf000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(4002(line=166,offs=1)--4048(line=166,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/axsz000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/axsz000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(4049(line=167,offs=1)--4095(line=167,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/tupl000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/tupl000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(4099(line=169,offs=1)--4145(line=169,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/list000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/list000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(4146(line=170,offs=1)--4192(line=170,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/list001_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/list001_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(4193(line=171,offs=1)--4239(line=171,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/lsrt000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/lsrt000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(4240(line=172,offs=1)--4286(line=172,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/optn000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/optn000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(4287(line=173,offs=1)--4333(line=173,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/optn001_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/optn001_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(4337(line=175,offs=1)--4383(line=175,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/strm000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/strm000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(4384(line=176,offs=1)--4430(line=176,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/strm001_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/strm001_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(4431(line=177,offs=1)--4477(line=177,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/strm002_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/strm002_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(4478(line=178,offs=1)--4524(line=178,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/strx000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/strx000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(4525(line=179,offs=1)--4571(line=179,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/strx001_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/strx001_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(4742(line=190,offs=1)--4788(line=190,offs=47))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/VT/gxyz000_vt.dats";33)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/VT/gxyz000_vt.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(5117(line=198,offs=1)--5117(line=198,offs=1))
+;; I1Dnone1(I0Dnone1(LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_dats.hats)@(5117(line=198,offs=1)--5117(line=198,offs=1));D3Cnone0()))
+;; I1Dinclude(LCSRCsome1(test00_prelude.dats)@(264(line=16,offs=1)--308(line=17,offs=36)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(197(line=15,offs=1)--249(line=16,offs=36))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Estr(T_STRN1_clsd("prelude/DATS/CATS/CM/xtop000.dats";35));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/xtop000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(296(line=21,offs=1)--344(line=22,offs=36))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/CM/gbas000.dats";35)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/gbas000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(345(line=23,offs=1)--393(line=24,offs=36))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/CM/gdbg000.dats";35)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/gdbg000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(440(line=29,offs=1)--488(line=30,offs=36))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/CM/bool000.dats";35)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/bool000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(489(line=31,offs=1)--537(line=32,offs=36))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/CM/char000.dats";35)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/char000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(538(line=33,offs=1)--586(line=34,offs=36))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/CM/gint000.dats";35)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/gint000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(587(line=35,offs=1)--635(line=36,offs=36))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/CM/gflt000.dats";35)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/gflt000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(682(line=41,offs=1)--730(line=42,offs=36))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/CM/strn000.dats";35)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/strn000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(777(line=47,offs=1)--825(line=48,offs=36))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/CM/list000.dats";35)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/list000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(826(line=49,offs=1)--874(line=50,offs=36))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/CM/optn000.dats";35)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/optn000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(901(line=54,offs=1)--949(line=55,offs=36))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/CM/strm000.dats";35)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/strm000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(950(line=56,offs=1)--998(line=57,offs=36))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/CM/strx000.dats";35)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/strx000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(1045(line=62,offs=1)--1093(line=63,offs=36))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/CM/axrf000.dats";35)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/axrf000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(1094(line=64,offs=1)--1142(line=65,offs=36))
+;; I1Di0dcl(I0Dd3ecl(D3Cstaload(1;T_SRP_STALOAD();G1Ea2pp(G1Eid0(=);G1Eid0(_);G1Estr(T_STRN1_clsd("prelude/DATS/CATS/CM/axsz000.dats";35)));$optn(FPATH(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/axsz000.dats));...)))
+;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(1398(line=73,offs=1)--1398(line=73,offs=1))
+;; I1Dnone1(I0Dnone1(LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/HATS/prelude_CM_dats.hats)@(1398(line=73,offs=1)--1398(line=73,offs=1));D3Cnone0()))
+;; I1Dvaldclist(LCSRCsome1(test00_prelude.dats)@(355(line=22,offs=1)--409(line=24,offs=39)))
+;; I1VALDCL
+(define cmxtnm30
+ (let*
+ (
+  (cmxtnm28 
+  ;; LCSRCsome1(test00_prelude.dats)@(364(line=23,offs=1)--370(line=23,offs=7))
+  ;; I0Etapq(I0Ecst(gs_print_a2(807)(LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/SATS/gsyn000.sats)@(11802(line=749,offs=1)--11813(line=749,offs=12))));$list(T2JAG($list(T2Papps(T2Pcst(string_i0_tx);$list(T2Pnone0())))),T2JAG($list(T2Papps(T2Pcst(string_i0_tx);$list(T2Pnone0()))))))
+  ;; T1IMPallx(gs_print_a2(807);LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gsyn000.dats)@(21143(line=1303,offs=1)--21306(line=1314,offs=4)))
+  ;; T1IMPallx(gs_print_a2(807)<$list(T2JAG($list(T2Papps(T2Pcst(string_i0_tx);$list(T2Pnone0())))),T2JAG($list(T2Papps(T2Pcst(string_i0_tx);$list(T2Pnone0())))))>;I1Dtmpsub($list(@(x0[7018],T2Papps(T2Pcst(string_i0_tx);$list(T2Pnone0()))),@(x1[7019],T2Papps(T2Pcst(string_i0_tx);$list(T2Pnone0()))));I1Dimplmnt0(DIMPLone2(gs_print_a2(807);$list(@(x0[2487],T2Pvar(x0[7018])),@(x1[2488],T2Pvar(x1[7019])))))))
+   (lambda (arg1 arg2) ;; timp: gs_print_a2(807)
+    (let
+    (
+     (cmxtnm1 arg1)
+     (cmxtnm2 arg2)
+    )
+    (let*
+    (
+     (cmxtnm27 
+      (letrec*
+      (
+       ;; I1Dvaldclist(LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gsyn000.dats)@(21200(line=1309,offs=1)--21223(line=1310,offs=15)))
+       ;; I1VALDCL
+       (cmxtnm6
+        (let*
+        (
+         (cmxtnm4 
+         ;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gsyn000.dats)@(21209(line=1310,offs=1)--21221(line=1310,offs=13))
+         ;; I0Etapq(I0Ecst(gs_print$beg(802)(LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/SATS/gsyn000.sats)@(11602(line=730,offs=1)--11614(line=730,offs=13))));$list(T2JAG($list())))
+         ;; T1IMPallx(gs_print$beg(802);LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gsyn000.dats)@(20714(line=1268,offs=1)--20752(line=1270,offs=20)))
+         ;; T1IMPallx(gs_print$beg(802)<$list(T2JAG($list()))>;I1Dtmpsub($list();I1Dimplmnt0(DIMPLone2(gs_print$beg(802);$list()))))
+          (lambda () ;; timp: gs_print$beg(802)
+           (let*
+           (
+            (cmxtnm3 XATSVOID)
+           ) cmxtnm3)) ;; endtimp(gs_print$beg(802))
+         )
+         (cmxtnm5 (XATSDAPP cmxtnm4))
+        ) cmxtnm5))
+       (cm0any1 (XATS000_patck #t))
+      )
+      (let*
+      (
+       (cmxtnm12 
+       ;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gsyn000.dats)@(21236(line=1312,offs=3)--21243(line=1312,offs=10))
+       ;; I0Etapq(I0Ecst(g_print(39)(LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/SATS/gbas000.sats)@(2824(line=171,offs=1)--2831(line=171,offs=8))));$list(T2JAG($list(T2Pvar(x0[7018])))))
+       ;; T1IMPallx(g_print(39);LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/strn000.dats)@(2143(line=94,offs=1)--2180(line=95,offs=29)))
+       ;; T1IMPallx(g_print(39)<$list(T2JAG($list(T2Papps(T2Pcst(string_i0_tx);$list(T2Pnone0())))))>;I1Dtmpsub($list();I1Dimplmnt0(DIMPLone2(g_print(39);$list(@(x0[447],T2Pcst(strn)))))))
+        (let*
+        (
+         (cmxtnm11 
+         ;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/strn000.dats)@(2168(line=95,offs=17)--2178(line=95,offs=27))
+         ;; I0Etapq(I0Ecst(strn_print(1040)(LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/SATS/strn000.sats)@(2592(line=122,offs=1)--2602(line=122,offs=11))));$list(T2JAG($list())))
+         ;; T1IMPallx(strn_print(1040);LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/strn000.dats)@(1819(line=74,offs=1)--1959(line=85,offs=2)))
+         ;; T1IMPallx(strn_print(1040)<$list(T2JAG($list()))>;I1Dtmpsub($list();I1Dimplmnt0(DIMPLone2(strn_print(1040);$list()))))
+          (lambda (arg1) ;; timp: strn_print(1040)
+           (let
+           (
+            (cmxtnm7 arg1)
+           )
+           (let*
+           (
+            (cmxtnm10 
+             (letrec*
+             (
+              ;; I1Dextern(LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/strn000.dats)@(1899(line=82,offs=1)--1957(line=84,offs=47)))
+              ;; I1Dfundclst(T_FUN(FNKfn1);$list();$list(XATS2CM_strn_print(2648));$list(I1FUNDCL(XATS2CM_strn_print(5011);$list(FJARGdarg($list(I1BNDcons(I1TNM(8);I0Pvar(cs(5012));$list(@(cs(5012),I1Vtnm(I1TNM(8))))))));TEQI1CMPsome(T_EQ0();I1CMPcons($list();I1Vextnam(T_DLR_EXTNAM();I1Vvar(XATS2CM_strn_print);G1Nlist($list())))))))
+             )
+             (let*
+             (
+              (cmxtnm9 (XATSDAPP XATS2CM_strn_print cmxtnm7))
+             ) cmxtnm9))
+            )
+           ) cmxtnm10))) ;; endtimp(strn_print(1040))
+         )
+        ) cmxtnm11)
+       )
+       (cmxtnm13 (XATSDAPP cmxtnm12 cmxtnm1))
+       (cmxtnm15 
+       ;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gsyn000.dats)@(21253(line=1312,offs=20)--21265(line=1312,offs=32))
+       ;; I0Etapq(I0Ecst(gs_print$sep(803)(LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/SATS/gsyn000.sats)@(11637(line=733,offs=1)--11649(line=733,offs=13))));$list(T2JAG($list())))
+       ;; T1IMPallx(gs_print$sep(803);LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gsyn000.dats)@(20753(line=1271,offs=1)--20791(line=1273,offs=20)))
+       ;; T1IMPallx(gs_print$sep(803)<$list(T2JAG($list()))>;I1Dtmpsub($list();I1Dimplmnt0(DIMPLone2(gs_print$sep(803);$list()))))
+        (lambda () ;; timp: gs_print$sep(803)
+         (let*
+         (
+          (cmxtnm14 XATSVOID)
+         ) cmxtnm14)) ;; endtimp(gs_print$sep(803))
+       )
+       (cmxtnm16 (XATSDAPP cmxtnm15))
+       (cmxtnm22 
+       ;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gsyn000.dats)@(21270(line=1313,offs=3)--21277(line=1313,offs=10))
+       ;; I0Etapq(I0Ecst(g_print(39)(LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/SATS/gbas000.sats)@(2824(line=171,offs=1)--2831(line=171,offs=8))));$list(T2JAG($list(T2Pvar(x1[7019])))))
+       ;; T1IMPallx(g_print(39);LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/strn000.dats)@(2143(line=94,offs=1)--2180(line=95,offs=29)))
+       ;; T1IMPallx(g_print(39)<$list(T2JAG($list(T2Papps(T2Pcst(string_i0_tx);$list(T2Pnone0())))))>;I1Dtmpsub($list();I1Dimplmnt0(DIMPLone2(g_print(39);$list(@(x0[447],T2Pcst(strn)))))))
+        (let*
+        (
+         (cmxtnm21 
+         ;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/strn000.dats)@(2168(line=95,offs=17)--2178(line=95,offs=27))
+         ;; I0Etapq(I0Ecst(strn_print(1040)(LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/SATS/strn000.sats)@(2592(line=122,offs=1)--2602(line=122,offs=11))));$list(T2JAG($list())))
+         ;; T1IMPallx(strn_print(1040);LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/strn000.dats)@(1819(line=74,offs=1)--1959(line=85,offs=2)))
+         ;; T1IMPallx(strn_print(1040)<$list(T2JAG($list()))>;I1Dtmpsub($list();I1Dimplmnt0(DIMPLone2(strn_print(1040);$list()))))
+          (lambda (arg1) ;; timp: strn_print(1040)
+           (let
+           (
+            (cmxtnm17 arg1)
+           )
+           (let*
+           (
+            (cmxtnm20 
+             (letrec*
+             (
+              ;; I1Dextern(LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/CATS/CM/strn000.dats)@(1899(line=82,offs=1)--1957(line=84,offs=47)))
+              ;; I1Dfundclst(T_FUN(FNKfn1);$list();$list(XATS2CM_strn_print(2648));$list(I1FUNDCL(XATS2CM_strn_print(5011);$list(FJARGdarg($list(I1BNDcons(I1TNM(18);I0Pvar(cs(5012));$list(@(cs(5012),I1Vtnm(I1TNM(18))))))));TEQI1CMPsome(T_EQ0();I1CMPcons($list();I1Vextnam(T_DLR_EXTNAM();I1Vvar(XATS2CM_strn_print);G1Nlist($list())))))))
+             )
+             (let*
+             (
+              (cmxtnm19 (XATSDAPP XATS2CM_strn_print cmxtnm17))
+             ) cmxtnm19))
+            )
+           ) cmxtnm20))) ;; endtimp(strn_print(1040))
+         )
+        ) cmxtnm21)
+       )
+       (cmxtnm23 (XATSDAPP cmxtnm22 cmxtnm2))
+       (cmxtnm25 
+       ;; LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gsyn000.dats)@(21287(line=1313,offs=20)--21299(line=1313,offs=32))
+       ;; I0Etapq(I0Ecst(gs_print$end(804)(LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/SATS/gsyn000.sats)@(11672(line=736,offs=1)--11684(line=736,offs=13))));$list(T2JAG($list())))
+       ;; T1IMPallx(gs_print$end(804);LCSRCsome1(/home/hwxi/Research/ATS-Xanadu/prelude/DATS/gsyn000.dats)@(20792(line=1274,offs=1)--20830(line=1276,offs=20)))
+       ;; T1IMPallx(gs_print$end(804)<$list(T2JAG($list()))>;I1Dtmpsub($list();I1Dimplmnt0(DIMPLone2(gs_print$end(804);$list()))))
+        (lambda () ;; timp: gs_print$end(804)
+         (let*
+         (
+          (cmxtnm24 XATSVOID)
+         ) cmxtnm24)) ;; endtimp(gs_print$end(804))
+       )
+       (cmxtnm26 (XATSDAPP cmxtnm25))
+      ) cmxtnm26))
+     )
+    ) cmxtnm27))) ;; endtimp(gs_print_a2(807))
+  )
+  (cmxtnm29 (XATSDAPP cmxtnm28 (XATSSTRN "Hello from [test00_prelude]!") (XATSSTRN "\n")))
+ ) cmxtnm29)
+) ;; val(...)
+(XATS000_patck #t)
+;; LCSRCsome1(test00_prelude.dats)@(672(line=32,offs=1)--672(line=32,offs=1))
+;; I1Dnone1(I0Dnone1(LCSRCsome1(test00_prelude.dats)@(672(line=32,offs=1)--672(line=32,offs=1));D3Cnone0()))

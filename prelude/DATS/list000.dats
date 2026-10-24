@@ -1,0 +1,860 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                         Applied Type System                         *)
+(*                                                                     *)
+(***********************************************************************)
+
+(*
+** ATS/Xanadu - Unleashing the Potential of Types!
+** Copyright (C) 2024 Hongwei Xi, ATS Trustful Software, Inc.
+** All rights reserved
+**
+** ATS is free software;  you can  redistribute it and/or modify it under
+** the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+** Free Software Foundation; either version 3, or (at  your  option)  any
+** later version.
+** 
+** ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+** WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+** FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+** for more details.
+** 
+** You  should  have  received  a  copy of the GNU General Public License
+** along  with  ATS;  see the  file COPYING.  If not, please write to the
+** Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+** 02110-1301, USA.
+*)
+
+(* ****** ****** *)
+//
+(*
+Author: Hongwei Xi
+(*
+Mon 08 Jul 2024 11:37:45 AM EDT
+*)
+Authoremail: gmhwxiATgmailDOTcom
+*)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+#staload UN =
+"prelude/SATS/unsfx00.sats"
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX:
+This one is also
+implemented in [gdbg000.dats]:
+*)
+#impltmp
+{ t0:t0 }
+g_ptcon
+<list(t0)>
+( (*void*) ) =
+(
+pstrn("list"))
+#impltmp
+{ t0:t0 }
+g_ptype
+<list(t0)>
+( (*void*) ) =
+(
+pstrn("list(");
+g_ptype<t0>((*0*)); pstrn(")"))
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+#impltmp
+< (*0*) >
+list_nil_
+((*void*)) = list_nil()
+#impltmp
+< x0:t0 >
+list_cons_
+( x1, xs ) = list_cons(x1, xs)
+//
+(* ****** ****** *)
+//
+#impltmp
+< (*0*) >
+list_nilq
+{a:t0}(xs) =
+(
+case+ xs of
+| list_nil() => true
+| list_cons(_, _) => false)
+//
+#impltmp
+< (*0*) >
+list_consq
+{a:t0}(xs) =
+(
+case+ xs of
+| list_nil() => false
+| list_cons(_, _) => (true))
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+#impltmp
+< x0:t0 >
+list_head(xs) =
+(case+ xs of
+|list_cons(x0, xs) => x0)
+#impltmp
+< x0:t0 >
+list_tail(xs) =
+(case+ xs of
+|list_cons(x0, xs) => xs)
+//
+(* ****** ****** *)
+//
+#impltmp
+< x0:t0 >
+list_head$opt(xs) =
+(
+case+ xs of
+|list_nil
+((*nil*)) => optn_vt_nil()
+|list_cons
+( x0,xs ) => optn_vt_cons(x0))
+#impltmp
+< x0:t0 >
+list_tail$opt(xs) =
+(
+case+ xs of
+|list_nil
+((*nil*)) => optn_vt_nil()
+|list_cons
+( x0,xs ) => optn_vt_cons(xs))
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+#impltmp
+{ x0:t0 }
+gseq_nil
+<list(x0)><x0>
+((*void*)) =
+(
+  list_nil(*void*))
+#impltmp
+{ x0:t0 }
+gseq_cons
+<list(x0)><x0>
+( x0, xs ) =
+(
+  list_cons(x0, xs))
+//
+(* ****** ****** *)
+//
+#impltmp
+{ x0:t0 }
+gseq_nilq
+<list(x0)><x0>
+ (  xs  ) = list_nilq{x0}(xs)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+#impltmp
+{ x0:t0 }
+$UN.gseq_head$raw
+<list(x0)><x0>(xs) =
+(case- xs of
+|list_cons(x0, xs) => x0)
+#impltmp
+{ x0:t0 }
+$UN.gseq_tail$raw
+<list(x0)><x0>(xs) =
+(case- xs of
+|list_cons(x0, xs) => xs)
+//
+#impltmp
+{ x0:t0 }
+$UN.gseq_uncons$raw
+<list(x0)><x0>( xs ) =
+(case- xs of
+|list_cons(x0, xs) => (x0, xs))
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2024-07-17:
+Wed 17 Jul 2024 09:49:09 PM EDT
+*)
+//
+#impltmp
+{ x0:t0 }
+gseq$sep
+<list(x0)><x0>() = ","
+#impltmp
+{ x0:t0 }
+gseq$end
+<list(x0)><x0>() = ")"
+#impltmp
+{ x0:t0 }
+gseq$beg
+<list(x0)><x0>() = "list("
+//
+#impltmp
+{ x0:t0 }
+g_print
+<list(x0)>(xs) =
+(
+gseq_print<list(x0)><x0>(xs))
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+#impltmp
+< x0:t0 >
+list_strqize
+  (xs) =
+(
+  auxmain(xs)) where
+{
+fun auxmain(xs) = $llazy
+(
+case+ xs of
+|
+list_nil() =>
+strqcon_vt_nil()
+|
+list_cons(x1, xs) =>
+strqcon_vt_cons(x1, auxmain(xs))
+)
+}(*where*)//end-of-[list_strqize(xs)]
+//
+#impltmp
+{x0:t0}
+gseq_strqize
+<list(x0)><x0> = list_strqize<x0>
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+#impltmp
+< x0:t0 >
+list_length =
+gseq_length<list(x0)><x0>
+*)
+//
+#impltmp
+< x0:t0 >
+list_length
+  (xs) =
+(
+loop(xs, 0(*j0*))) where
+{
+fun
+loop{i,j:i0}
+(xs:
+ list(x0)
+,j0: sint(j)): sint(i+j) =
+(
+case+ xs of
+|
+list_nil
+((*void*)) => ( j0 )
+|
+list_cons
+( x1, xs ) => loop(xs, j0+1)
+)
+}
+//
+#impltmp
+{ x0:t0 }
+gseq_length
+<list(x0)><x0> = list_length<x0>
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+#impltmp
+<a>(*tmp*)
+list_copy_vt = list_listize<a>
+#impltmp
+<a>(*tmp*)
+list_rcopy_vt = list_rlistize<a>
+*)
+(*
+HX-2026-04-05:
+This one can be implemented
+in C more efficiently:
+it only needs to do one pass
+over the given list [xs]!
+Sun Apr  5 01:12:30 PM EDT 2026
+*)
+#impltmp
+<a>(*tmp*)
+list_copy_vt
+  ( xs  ) =
+(
+list_appendx0_vt<a>
+  (xs, list_vt_nil((*0*))))
+//
+#impltmp
+<a>(*tmp*)
+list_listize = list_copy_vt<a>
+//
+#impltmp
+<a>(*tmp*)
+list_rlistize = list_rcopy_vt<a>
+#impltmp
+<a>(*tmp*)
+list_rcopy_vt = list_reverse_vt<a>
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2024-07-24:
+there is a trec-implementation
+for [list_append]!
+Wed 31 Jul 2024 08:13:30 PM EDT
+*)
+#impltmp
+{ x0:t0 }
+g_add
+<list(x0)> =
+g_append<list(x0)>(*void*)
+#impltmp
+{ x0:t0 }
+g_append
+<list(x0)>(*x0*) =
+gseq_append<list(x0)><x0>(*void*)
+//
+#impltmp
+{ x0:t0 }
+gseq_append
+<list(x0)><x0> = list_append<x0>
+//
+(* ****** ****** *)
+//
+#impltmp
+<a>(*tmp*)
+list_extend
+(xs, y0) =
+(
+list_append<a>(xs, ys)
+) where
+{
+  val ys = list_sing<a>(y0)
+}(*where*)//end-of-[list_extend]
+//
+(* ****** ****** *)
+//
+#impltmp
+<a>(*tmp*)
+list_append
+{m,n}
+(xs, ys) = let
+fnx
+loop
+{m:nat} .<m>.
+( xs
+: list(a, m)
+, r0:
+& (?list(a)>>list(a,m+n))
+) : void =
+(
+case+ xs of
+| list_nil() =>
+  (r0 := ys)
+| list_cons(x0, xs) =>
+  let
+    val () = (
+      r0 :=
+      list_cons(x0, _))
+  in
+    loop(xs, r0.1); $fold(r0)
+  end
+endcas // end of [case+of(xs)]
+)
+in
+let
+var r0
+  : list(a) in loop(xs, r0); (r0)
+end(*let*)
+end(*let*)//end-of(list_append(xs,ys))
+//
+(* ****** ****** *)
+//
+#impltmp
+<a>(*tmp*)
+list_append_vt
+  (xs, ys) =
+let
+val ys =
+(
+  list_copy_vt<a>(ys)) in
+(
+  list_appendx0_vt<a>(xs, ys)) end
+//(*let*)//endof[list_append_vt(xs,ys)]
+//
+(* ****** ****** *)
+//
+#impltmp
+<a>(*tmp*)
+list_appendx0_vt
+{m,n}
+(xs, ys) = let
+fnx
+loop
+{m:nat} .<m>.
+( xs
+: list(a, m)
+, r0: &
+(
+?list_vt(a)>>list_vt(a,m+n))
+) : void =
+(
+case+ xs of
+| list_nil() =>
+  (r0 := ys)
+| list_cons(x0, xs) =>
+  let
+    val () = (
+      r0 :=
+      list_vt_cons(x0, _))
+  in
+    loop(xs, r0.1); $fold(r0)
+  end
+endcas // end of [case+of(xs)]
+)
+in//let
+//
+let
+var r0
+  : list_vt(a) in loop(xs, r0); (r0)
+end(*let*)
+//
+end(*let*)//end(list_appendx0_vt(...))
+//
+(* ****** ****** *)
+//
+#impltmp
+<a>(*tmp*)
+list_appendx1_vt
+  (xs, ys) =
+let
+val ys =
+(
+  list_vt_copy<a>(ys)) in
+(
+  list_appendx0_vt<a>(xs, ys)) end
+//(*let*)//end(list_appendx1_vt(xs,ys))
+//
+(* ****** ****** *)
+//
+(*
+HX-2024-07-17:
+Wed 17 Jul 2024 06:14:38 PM EDT
+*)
+//
+#impltmp
+< x0:t0 >
+list_reverse
+  ( xs ) =
+(
+list_vt2t(list_reverse_vt<x0>(xs)))
+//
+#impltmp
+{ x0:t0 }
+gseq_reverse
+<list(x0)><x0> = list_reverse<x0>(*void*)
+//
+(* ****** ****** *)
+//
+#impltmp
+< x0:t0 >
+list_reverse_vt
+  (xs) =
+(
+list_rappendx0_vt<x0>(xs, list_vt_nil()))
+//
+(* ****** ****** *)
+//
+(*
+HX-2024-07-17:
+Wed 17 Jul 2024 06:32:33 PM EDT
+*)
+//
+#impltmp
+< x0:t0 >
+list_rappend_vt
+  (xs, ys) =
+let
+  val ys =
+  list_copy_vt<x0>(ys)
+in
+  list_rappendx0_vt<x0>(xs, ys)
+end(*let*)//endof(list_rappend_vt(xs,ys))
+//
+(* ****** ****** *)
+//
+#impltmp
+< x0:t0 >
+list_rappendx0_vt
+  (xs, ys) =
+(
+  loop(xs, ys)) where
+{
+//
+fnx
+loop
+{m,n:nat}.<m>.
+( xs
+: list(x0, m)
+, ys
+: list_vt(x0, n)
+) : list_vt(x0,m+n) =
+(
+case+ xs of
+| list_nil() => ys
+| list_cons(x0, xs) =>
+  loop(xs, list_vt_cons(x0, ys)))//fnx
+//
+}(*where*)//end(list_rappendx0_vt(xs,ys))
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2026-04-04:
+Sat Apr  4 02:08:05 AM EDT 2026
+*)
+//
+#impltmp
+< x0:t0 >
+list_prepend =
+list_append<x0>(*xs,ys*)
+//
+#impltmp
+< x0:t0 >
+list_prependx0
+  ( xs, ys ) =
+(
+list_prependrx0<x0>
+(
+xs,
+list_vt_reverse0<x0>(ys)))
+//
+#impltmp
+< x0:t0 >
+list_prependrx0
+  ( xs, ys ) =
+(
+  loop(xs, ys)) where
+{
+//
+fnx
+loop{m,n:i0}
+( xs:
+  list
+  (x0, m)
+, ys:
+~ list_vt
+  (x0, n)): list(x0, m+n) =
+(
+case+ ys of
+| ~
+list_vt_nil() => xs
+| ~
+list_vt_cons(y1, ys) =>
+(
+  loop(list_cons(y1, xs), ys)))
+//
+}(*where*)//end(list_prependrx0(xs,ys)]
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+#impltmp
+< x0:t0 >
+list_make_1val
+(x1) =
+list_cons(x1, list_nil(*0*))
+#impltmp
+< x0:t0 >
+list_make_2val
+(x1, x2) =
+list_cons(x1,
+list_cons(x2, list_nil(*0*)))
+#impltmp
+< x0:t0 >
+list_make_3val
+(x1, x2, x3) =
+list_cons(x1,
+list_cons(x2,
+list_cons(x3, list_nil(*0*))))
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2024-09-01:
+Mon 02 Sep 2024 06:16:45 PM EDT
+*)
+//
+#impltmp
+< x0:t0 >
+list_make_ncpy
+  (n0, x0) =
+list_make_fwork<>
+(
+lam(work) =>
+foritm(n0, //HX:it may not be
+  lam(i0) => work(x0)))//efficient!
+//
+#impltmp
+< x0:t0 >
+list_make_nfun
+  (n0, f0) =
+list_make_fwork<>
+(
+lam(work) =>
+foritm(n0, //HX:it may not be
+  lam(i0) => work(f0(i0))))//efficient!
+//
+(* ****** ****** *)
+(* ****** ****** *)
+(*
+HX-2024-08-16:
+Note that
+[list_fmake] and list_make_fwork]
+are both implemented in [list001.dats]
+*)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+//
+HX-2024-08-04:
+This is not needed for now as
+[GSEQ_make_list] is defined as a [fcast]
+Sun 04 Aug 2024 10:05:15 AM EDT
+//
+#impltmp
+{ a: t0 }
+GSEQ_make<list(a)><a> = GSEQ_make_list<>{a}
+//
+*)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+#impltmp
+< xs:t0 >
+< x0:t0 >
+list_make_gseq
+  ( xs ) =
+list_vt2t{x0}
+(
+gseq_listize<xs><x0>(xs))
+//
+#impltmp
+< xs:t0 >
+< x0:t0 >
+< y0:t0 >
+list_map$make_gseq
+  ( xs ) =
+(
+gseq_map_list<xs><x0><y0>(xs))
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2024-09-05:
+Thu 05 Sep 2024 05:21:51 PM EDT
+*)
+//
+#impltmp
+< x0:t0 >
+list_make_t0up1(xs) =
+(
+  list_make_1val<x0>(xs.0))
+//
+#impltmp
+< x0:t0 >
+list_make_t0up2(xs) =
+(
+  list_make_2val<x0>(x0, x1))
+where
+{
+  val x0 = xs.0 and x1 = xs.1 }
+//
+#impltmp
+< x0:t0 >
+list_make_t0up3(xs) =
+let
+val @(x0, x1, x2) = xs in
+(
+  list_make_3val<x0>(x0, x1, x2))
+end//let//end-of-[list_make_t0up3]
+//
+(* ****** ****** *)
+//
+(*
+#impltmp
+< x0:t0 >
+list_make_t0up4 =
+list_make_gseq<t0up(x0,x0,x0,x0)><x0>
+*)
+#impltmp
+< x0:t0 >
+list_make_t0up4(xs) =
+let
+val
+@(x0, x1, x2, x3) = xs in
+(
+list_cons(x0,
+  list_make_3val<x0>(x1, x2, x3)))
+end//let//end-of-[list_make_t0up4(xs)]
+//
+(*
+#impltmp
+< x0:t0 >
+list_make_t0up5 =
+list_make_gseq<t0up(x0,x0,x0,x0,x0)><x0>
+*)
+#impltmp
+< x0:t0 >
+list_make_t0up5(xs) =
+let
+//
+val
+@(x0, x1, x2, x3, x4) = xs in
+(
+list_cons(x0,
+list_cons(x1,
+  list_make_3val<x0>(x2, x3, x4))))
+end//let//end-of-[list_make_t0up5(xs)]
+//
+(*
+#impltmp
+< x0:t0 >
+list_make_t0up6 =
+list_make_gseq<t0up(x0,x0,x0,x0,x0,x0)><x0>
+*)
+#impltmp
+< x0:t0 >
+list_make_t0up6(xs) =
+let
+//
+val
+@(x0, x1, x2, x3, x4, x5) = xs
+//
+in//let
+(
+list_cons(x0,
+list_cons(x1,
+list_cons(x2,
+  list_make_3val<x0>(x3, x4, x5)))))
+end//let//end-of-[list_make_t0up6(xs)]
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2025-12-13:
+Sat Dec 13 10:31:30 PM EST 2025
+*)
+#impltmp
+< a:t0 >
+list_list$concat
+  (   xss   ) =
+list_vt2t(
+list_list$concat_vt<a>(xss))
+//
+#impltmp
+< a:t0 >
+list_list$concat_vt
+  (   xss   ) =
+(
+  loop(xss, res)) where
+{
+//
+val res = list_vt_nil(*0*)
+//
+fun
+loop
+( xss
+: list(list(a))
+, res: list_vt(a)): list_vt(a) =
+(
+case+ xss of
+|
+list_nil() =>
+list_vt_reverse0(res)
+|
+list_cons(xs1, xss) =>
+loop(xss, list_rappendx0_vt(xs1, res)))
+//
+}(*where*)//end-of-[list_list$concat_vt(xss)]
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2025-12-15:
+Mon Dec 15 04:37:34 PM EST 2025
+*)
+//
+#impltmp
+< a:t0 >
+list_make_lstrm(xs) =
+(
+list_vt2t(list_vt_make_lstrm<a>(xs)))
+//end-of-[impltmp<a:t0>(list_make_lstrm(xs))]
+//
+#impltmp
+< a:t0 >
+list_make_lstrq(xs) =
+(
+list_vt2t(list_vt_make_lstrq<a>(xs)))
+//end-of-[impltmp<a:t0>(list_make_lstrq(xs))]
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2026-01-08:
+Thu Jan  8 10:54:42 AM EST 2026
+*)
+//
+#impltmp
+list$make$len<>() = 10
+//
+#impltmp
+< a:t0 >
+list_make() =
+(
+nint_map_list<a>(ln)
+) where
+{
+//
+val ln = list$make$len<>()
+//
+#impltmp map$fopr<a>(_) = g_make<a>()
+//
+}(*where*)//end-of-[g_make<list(a)>()]
+//
+#impltmp
+{ a:t0 }
+g_make<list(a)>(*0*) = list_make<a>(*0*)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(***********************************************************************)
+(* end of [ATS3/XANADU_prelude_DATS_list000.dats] *)
+(***********************************************************************)

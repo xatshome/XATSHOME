@@ -1,0 +1,643 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                         Applied Type System                         *)
+(*                                                                     *)
+(***********************************************************************)
+
+(*
+** ATS/Xanadu - Unleashing the Potential of Types!
+** Copyright (C) 2024 Hongwei Xi, ATS Trustful Software, Inc.
+** All rights reserved
+**
+** ATS is free software;  you can  redistribute it and/or modify it under
+** the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+** Free Software Foundation; either version 3, or (at  your  option)  any
+** later version.
+** 
+** ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+** WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+** FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+** for more details.
+** 
+** You  should  have  received  a  copy of the GNU General Public License
+** along  with  ATS;  see the  file COPYING.  If not, please write to the
+** Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+** 02110-1301, USA.
+*)
+
+(* ****** ****** *)
+//
+(*
+Author: Hongwei Xi
+(*
+Sat 13 Jul 2024 09:56:55 AM EDT
+*)
+Authoremail: gmhwxiATgmailDOTcom
+*)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+#typedef ni = nint
+#typedef si = sint
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2024-07-24:
+Wed 24 Jul 2024 08:33:48 PM EDT
+For additive combination of two
+given lists: z is short for zip
+*)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2025-09-07:
+Sun Sep  7 08:06:58 PM EDT 2025
+Here is the meaning of various prefixes:
+//
+rzip2(xs, ys) =
+(zip2(rev(xs), rev(ys)))
+//
+z2map(xs, ys) = map(zip(xs, ys))
+z2rmap(xs, ys) = rmap(zip(xs, ys))
+//
+z2imap(xs, ys) = imap(zip(xs, ys))
+z2irmap(xs, ys) = irmap(zip(xs, ys))
+//
+*)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+gseq_cmp
+(xs: xs, ys: xs): sint(*sign*)
+//
+fun
+<xs:t0>
+<x0:t0>
+gseq_equal(xs: xs, ys: xs): bool
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2listize
+(xs: xs, ys: ys): list_vt@(x0, y0)
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2rlistize
+(xs: xs, ys: ys): list_vt@(x0, y0)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2ilistize
+(xs: xs, ys: ys): list_vt@(ni, x0, y0)
+//
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2strmize
+(xs: xs, ys: ys): strm_vt@(x0, y0)
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2istrmize
+(xs: xs, ys: ys): strm_vt@(ni, x0, y0)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2strqize
+(xs: xs, ys: ys): strq_vt@(x0, y0)
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2istrqize
+(xs: xs, ys: ys): strq_vt@(ni, x0, y0)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2forall(xs: xs, ys: ys): bool
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2forcmp(xs: xs, ys: ys): sint
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2rforall(xs: xs, ys: ys): bool
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2rforcmp(xs: xs, ys: ys): sint
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2iforall(xs: xs, ys: ys): bool
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2iforcmp(xs: xs, ys: ys): sint
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2irforall(xs: xs, ys: ys): bool
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2irforcmp(xs: xs, ys: ys): sint
+//
+(*
+#symload z2forall with gseq_z2forall of 0100
+#symload z2forcmp with gseq_z2forcmp of 0100
+#symload z2rforall with gseq_z2rforall of 0100
+#symload z2rforcmp with gseq_z2rforcmp of 0100
+#symload z2iforall with gseq_z2iforall of 0100
+#symload z2iforcmp with gseq_z2iforcmp of 0100
+#symload z2irforall with gseq_z2irforall of 0100
+#symload z2irforcmp with gseq_z2irforcmp of 0100
+*)
+//
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2forall$f2un
+(xs: xs, ys: ys, test: (x0, y0)->bool): bool
+//
+(*
+#symload z2forall with gseq_z2forall$f2un of 0100
+#symload z2forall$fun with gseq_z2forall$f2un of 0100
+*)
+#symload gseq_z2forall with gseq_z2forall$f2un of 0100
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2foritm(xs: xs, ys: ys): void
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2rforitm(xs: xs, ys: ys): void
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2iforitm(xs: xs, ys: ys): void
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2irforitm(xs: xs, ys: ys): void
+//
+(*
+#symload z2foritm with gseq_z2foritm of 0100
+#symload z2rforitm with gseq_z2rforitm of 0100
+#symload z2iforitm with gseq_z2iforitm of 0100
+#symload z2irforitm with gseq_z2irforitm of 0100
+*)
+//
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2foritm$f2un
+(xs: xs, ys: ys, work: (x0, y0)->void): void
+//
+(*
+#symload z2foritm with gseq_z2foritm$f2un of 0100
+#symload z2foritm$fun with gseq_z2foritm$f2un of 0100
+*)
+#symload gseq_z2foritm with gseq_z2foritm$f2un of 0100
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<zs:vt>
+<z0:vt>
+gseq_z2map_ares(xs: xs, ys: ys): (zs)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_z2map_self(xs: xs, ys: ys): (xs)
+//
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_z2map_llist(xs: xs, ys: ys): list_vt(z0)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_z2map_lstrm(xs: xs, ys: ys): strm_vt(z0)
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_z2map_lstrq(xs: xs, ys: ys): strq_vt(z0)
+//
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_z2rmap_llist(xs: xs, ys: ys): list_vt(z0)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_z2rmap_lstrm(xs: xs, ys: ys): strm_vt(z0)
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_z2rmap_lstrq(xs: xs, ys: ys): strq_vt(z0)
+//
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_z2imap_llist(xs: xs, ys: ys): list_vt(z0)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_z2imap_lstrm(xs: xs, ys: ys): strm_vt(z0)
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_z2imap_lstrq(xs: xs, ys: ys): strq_vt(z0)
+//
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_z2irmap_llist(xs: xs, ys: ys): list_vt(z0)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_z2irmap_lstrm(xs: xs, ys: ys): strm_vt(z0)
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_z2irmap_lstrq(xs: xs, ys: ys): strq_vt(z0)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+(*
+HX-2024-08-04:
+Sun 04 Aug 2024 07:17:13 AM EDT
+For multiplicative combination of
+two given lists: x is short for cross
+*)
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_x2listize
+(xs: xs, ys: ys): list_vt@(x0, y0)
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_x2rlistize
+(xs: xs, ys: ys): list_vt@(x0, y0)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_x2strmize
+(xs: xs, ys: ys): strm_vt@(x0, y0)
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_x2strqize
+(xs: xs, ys: ys): strq_vt@(x0, y0)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_ix2strmize
+( xs: xs
+, ys: ys): strm_vt@(ni, x0, ni, y0)
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_ix2strqize
+( xs: xs
+, ys: ys): strq_vt@(ni, x0, ni, y0)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_x2forall(xs: xs, ys: ys): bool
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_ix2forall(xs: xs, ys: ys): bool
+//
+(*
+#symload x2forall with gseq_x2forall of 0100
+#symload ix2forall with gseq_ix2forall of 0100
+*)
+//
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_x2forall$f2un
+(xs: xs, ys: ys, test: (x0, y0)->bool): bool
+//
+(*
+#symload x2forall with gseq_x2forall$f2un of 0100
+#symload x2forall$fun with gseq_x2forall$f2un of 0100
+*)
+#symload gseq_x2forall with gseq_x2forall$f2un of 0100
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_x2foritm(xs: xs, ys: ys): void
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_ix2foritm(xs: xs, ys: ys): void
+//
+(*
+#symload x2foritm with gseq_x2foritm of 0100
+#symload ix2foritm with gseq_ix2foritm of 0100
+*)
+//
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_x2foritm$f2un
+(xs: xs, ys: ys, work: (x0, y0)->void): void
+//
+(*
+#symload x2foritm with gseq_x2foritm$f2un of 0100
+#symload x2foritm$fun with gseq_x2foritm$f2un of 0100
+*)
+#symload gseq_x2foritm with gseq_x2foritm$f2un of 0100
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<zs:vt>
+<z0:vt>
+gseq_x2map_ares(xs: xs, ys: ys): (zs)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+gseq_x2map_self(xs: xs, ys: ys): (xs)
+//
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_x2map_llist(xs: xs, ys: ys): list_vt(z0)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_x2map_lstrm(xs: xs, ys: ys): strm_vt(z0)
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_x2map_lstrq(xs: xs, ys: ys): strq_vt(z0)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_ix2map_llist(xs: xs, ys: ys): list_vt(z0)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_ix2map_lstrm(xs: xs, ys: ys): strm_vt(z0)
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+<z0:vt>
+gseq_ix2map_lstrq(xs: xs, ys: ys): strq_vt(z0)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+#typedef
+gz2seq
+( xs: t0, x0: t0
+, ys: t0, y0: t0) =
+(
+  z2tup(GSEQ(xs, x0), GSEQ(ys, y0)))
+//
+#typedef
+gx2seq
+( xs: t0, x0: t0
+, ys: t0, y0: t0) =
+(
+  x2tup(GSEQ(xs, x0), GSEQ(ys, y0)))
+//
+(* ****** ****** *)
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+GSEQ_z2make
+( xs: GSEQ(xs, x0)
+, ys: GSEQ(ys, y0)): GSEQ(gz2seq(xs,x0,ys,y0),(x0,y0))
+//
+fun
+<xs:t0>
+<x0:t0>
+<ys:t0>
+<y0:t0>
+GSEQ_x2make
+( xs: GSEQ(xs, x0)
+, ys: GSEQ(ys, y0)): GSEQ(gx2seq(xs,x0,ys,y0),(x0,y0))
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(***********************************************************************)
+(* end of [ATS3/XANADU_prelude_SATS_gseq002.sats] *)
+(***********************************************************************)

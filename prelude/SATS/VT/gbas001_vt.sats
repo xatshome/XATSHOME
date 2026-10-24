@@ -1,0 +1,668 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                         Applied Type System                         *)
+(*                                                                     *)
+(***********************************************************************)
+
+(*
+** ATS/Xanadu - Unleashing the Potential of Types!
+** Copyright (C) 2024 Hongwei Xi, ATS Trustful Software, Inc.
+** All rights reserved
+**
+** ATS is free software;  you can  redistribute it and/or modify it under
+** the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
+** Free Software Foundation; either version 3, or (at  your  option)  any
+** later version.
+** 
+** ATS is distributed in the hope that it will be useful, but WITHOUT ANY
+** WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
+** FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
+** for more details.
+** 
+** You  should  have  received  a  copy of the GNU General Public License
+** along  with  ATS;  see the  file COPYING.  If not, please write to the
+** Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
+** 02110-1301, USA.
+*)
+
+(* ****** ****** *)
+//
+(*
+Author: Hongwei Xi
+(*
+Wed 10 Jul 2024 09:26:36 AM EDT
+*)
+Authoremail: gmhwxiATgmailDOTcom
+*)
+//
+(* ****** ****** *)
+#typedef ni = nint
+(* ****** ****** *)
+//
+(*
+HX-2024-07-15
+*)
+fun
+<x0:vt>
+max$nil0((*nil*)): (x0)
+fun
+<x0:vt>
+max$nil1((*nil*)): (x0)
+//
+fun
+<x0:vt>
+min$nil0((*nil*)): (x0)
+fun
+<x0:vt>
+min$nil1((*nil*)): (x0)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2024-07-15
+*)
+fun
+<xs:vt>
+<x0:vt>
+get$at$exn0
+(xs: ~xs, i0: ni): x0
+fun
+<xs:vt>
+<x0:vt>
+get$at$exn1
+(xs: !xs, i0: ni): x0
+//
+(*
+HX-2024-08-02:
+This makes no sense!
+fun
+<xs:vt>
+<x0:vt>
+set$at$exn0
+(xs: ~xs, ni, x0): void
+*)
+fun
+<xs:vt>
+<x0:vt>
+set$at$exn1
+(xs: !xs, ni, x0): void
+//
+fun
+<xs:vt>
+<x0:vt>
+fset$at$exn0
+(xs: ~xs, ni, x0): (xs)
+fun
+<xs:vt>
+<x0:vt>
+fset$at$exn1
+(xs: !xs, ni, x0): (xs)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+<x0:vt>
+forall$test0(x0: ~x0): bool
+fun
+<x0:vt>
+forall$test1(x0: !x0): bool
+//
+fun
+<x0:vt>
+exists$test0(x0: ~x0): bool
+fun
+<x0:vt>
+exists$tcmp0(x0: ~x0): sint
+fun
+<x0:vt>
+exists$test1(x0: !x0): bool
+fun
+<x0:vt>
+exists$tcmp1(x0: !x0): sint
+//
+(* ****** ****** *)
+//
+fun
+<x0:vt>
+rforall$test0(x0: ~x0): bool
+fun
+<x0:vt>
+rforall$test1(x0: !x0): bool
+//
+fun
+<x0:vt>
+rexists$test0(x0: ~x0): bool
+fun
+<x0:vt>
+rexists$test1(x0: !x0): bool
+//
+(* ****** ****** *)
+//
+fun
+<x0:vt>
+iforall$test0(ni, ~x0): bool
+fun
+<x0:vt>
+iforall$test1(ni, !x0): bool
+//
+fun
+<x0:vt>
+iexists$test0(ni, ~x0): bool
+fun
+<x0:vt>
+iexists$tcmp0(ni, ~x0): sint
+fun
+<x0:vt>
+iexists$test1(ni, !x0): bool
+fun
+<x0:vt>
+iexists$tcmp1(ni, !x0): sint
+//
+(* ****** ****** *)
+//
+fun
+<x0:vt>
+irforall$test0(ni, ~x0): bool
+fun
+<x0:vt>
+irforall$test1(ni, !x0): bool
+//
+fun
+<x0:vt>
+irexists$test0(ni, ~x0): bool
+fun
+<x0:vt>
+irexists$test1(ni, !x0): bool
+//
+(* ****** ****** *)
+//
+fun
+<x0:vt>
+foritm$work0(x0: ~x0): void
+fun
+<x0:vt>
+foritm$work1(x0: !x0): void
+fun
+<x0:vt>
+foritm$work1x(x0: &x0): void
+//
+fun
+<x0:vt>
+rforitm$work0(x0: ~x0): void
+fun
+<x0:vt>
+rforitm$work1(x0: !x0): void
+fun
+<x0:vt>
+rforitm$work1x(x0: &x0): void
+//
+fun
+<x0:vt>
+iforitm$work0(ni, ~x0): void
+fun
+<x0:vt>
+iforitm$work1(ni, !x0): void
+fun
+<x0:vt>
+iforitm$work1x(x0: &x0): void
+//
+fun
+<x0:vt>
+irforitm$work0(ni, ~x0): void
+fun
+<x0:vt>
+irforitm$work1(ni, !x0): void
+fun
+<x0:vt>
+irforitm$work1x(x0: &x0): void
+//
+(* ****** ****** *)
+//
+fun
+<x0:vt>
+<r0:vt>
+folditm$fopr0(r0, ~x0): (r0)
+fun
+<x0:vt>
+<r0:vt>
+folditm$fopr1(r0, !x0): (r0)
+fun
+<x0:vt>
+<r0:vt>
+folditm$fopr1x(r0, &x0): (r0)
+//
+fun
+<x0:vt>
+<r0:vt>
+rfolditm$fopr0(~x0, r0): (r0)
+fun
+<x0:vt>
+<r0:vt>
+rfolditm$fopr1(!x0, r0): (r0)
+fun
+<x0:vt>
+<r0:vt>
+rfolditm$fopr1x(&x0, r0): (r0)
+//
+fun
+<x0:vt>
+<r0:vt>
+ifolditm$fopr0(r0, ni, ~x0): (r0)
+fun
+<x0:vt>
+<r0:vt>
+ifolditm$fopr1(r0, ni, !x0): (r0)
+fun
+<x0:vt>
+<r0:vt>
+ifolditm$fopr1x(r0, ni, &x0): (r0)
+//
+fun
+<x0:vt>
+<r0:vt>
+irfolditm$fopr0(ni, ~x0, r0): (r0)
+fun
+<x0:vt>
+<r0:vt>
+irfolditm$fopr1(ni, !x0, r0): (r0)
+fun
+<x0:vt>
+<r0:vt>
+irfolditm$fopr1x(ni, &x0, r0): (r0)
+//
+(* ****** ****** *)
+//
+fun
+<x0:vt>
+<r0:vt>
+scanitm$fopr0(!r0, ~x0): (r0)
+fun
+<x0:vt>
+<r0:vt>
+scanitm$fopr1(!r0, !x0): (r0)
+fun
+<x0:vt>
+<r0:vt>
+scanitm$fopr1x(!r0, &x0): (r0)
+//
+fun
+<x0:vt>
+<r0:vt>
+iscanitm$fopr0(!r0, ni, ~x0): (r0)
+fun
+<x0:vt>
+<r0:vt>
+iscanitm$fopr1(!r0, ni, !x0): (r0)
+fun
+<x0:vt>
+<r0:vt>
+iscanitm$fopr1x(!r0, ni, &x0): (r0)
+//
+(* ****** ****** *)
+//
+fun
+<x0:vt>
+<r0:vt>
+foldall$fopr0(r0, ~x0): (bool, r0)
+fun
+<x0:vt>
+<r0:vt>
+foldall$fopr1(r0, !x0): (bool, r0)
+fun
+<x0:vt>
+<r0:vt>
+foldall$fopr1x(r0, &x0): (bool, r0)
+//
+fun
+<x0:vt>
+<r0:vt>
+rfoldall$fopr0(~x0, r0): (bool, r0)
+fun
+<x0:vt>
+<r0:vt>
+rfoldall$fopr1(!x0, r0): (bool, r0)
+fun
+<x0:vt>
+<r0:vt>
+rfoldall$fopr1x(r0, &x0): (bool, r0)
+//
+fun
+<x0:vt>
+<r0:vt>
+ifoldall$fopr0(r0, ni, ~x0): (bool, r0)
+fun
+<x0:vt>
+<r0:vt>
+ifoldall$fopr1(r0, ni, !x0): (bool, r0)
+fun
+<x0:vt>
+<r0:vt>
+ifoldall$fopr1x(r0, ni, &x0): (bool, r0)
+//
+fun
+<x0:vt>
+<r0:vt>
+irfoldall$fopr0(ni, ~x0, r0): (bool, r0)
+fun
+<x0:vt>
+<r0:vt>
+irfoldall$fopr1(ni, !x0, r0): (bool, r0)
+fun
+<x0:vt>
+<r0:vt>
+irfoldall$fopr1x(ni, &x0, r0): (bool, r0)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+<x0:vt>
+<y0:vt>
+map$fopr0(x0: ~x0): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+map$fopr1(x0: !x0): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+map$fopr1x(x0: &x0): ( y0 )
+//
+fun
+<x0:vt>
+<y0:vt>
+rmap$fopr0(x0: ~x0): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+rmap$fopr1(x0: !x0): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+rmap$fopr1x(x0: &x0): ( y0 )
+//
+fun
+<x0:vt>
+<y0:vt>
+imap$fopr0(ni, ~x0): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+imap$fopr1(ni, !x0): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+imap$fopr1x(ni, &x0): ( y0 )
+//
+fun
+<x0:vt>
+<y0:vt>
+irmap$fopr0(ni, ~x0): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+irmap$fopr1(ni, !x0): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+irmap$fopr1x(ni, &x0): ( y0 )
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2025-12-29:
+There is no [search$test0]!
+fun
+<x0:vt>
+<y0:vt>
+search$test0(x0: ~x0): bool
+*)
+//
+fun
+<x0:vt>
+search$test1(x0: !x0): bool
+fun
+<x0:vt>
+search$tcmp1(x0: !x0): sint
+//
+fun
+<x0:vt>
+rsearch$test1(x0: !x0): bool
+fun
+<x0:vt>
+rsearch$tcmp1(x0: !x0): sint
+//
+fun
+<x0:vt>
+isearch$test1(ni, !x0): bool
+fun
+<x0:vt>
+isearch$tcmp1(ni, !x0): sint
+//
+fun
+<x0:vt>
+irsearch$test1(ni, !x0): bool
+fun
+<x0:vt>
+irsearch$tcmp1(ni, !x0): sint
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2024-07-24:
+[filter$test0] is removed!
+fun
+<x0:vt>
+<y0:vt>
+filter$test0(x0: ~x0): bool
+*)
+//
+fun
+<x0:vt>
+filter$test1(x0: !x0): bool
+fun
+<x0:vt>
+filter$test1x(x0: &x0): bool
+//
+fun
+<x0:vt>
+rfilter$test1(x0: !x0): bool
+fun
+<x0:vt>
+rfilter$test1x(x0: &x0): bool
+//
+fun
+<x0:vt>
+ifilter$test1(ni, !x0): bool
+fun
+<x0:vt>
+ifilter$test1x(ni, &x0): bool
+//
+fun
+<x0:vt>
+irfilter$test1(ni, !x0): bool
+fun
+<x0:vt>
+irfilter$test1x(ni, &x0): bool
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+<x0:vt>
+<y0:vt>
+mapoptn$fopr0(x0: ~x0): optn_vt(y0)
+fun
+<x0:vt>
+<y0:vt>
+maplist$fopr0(x0: ~x0): list_vt(y0)
+fun
+<x0:vt>
+<y0:vt>
+mapstrm$fopr0(x0: ~x0): strm_vt(y0)
+fun
+<x0:vt>
+<y0:vt>
+mapstrq$fopr0(x0: ~x0): strq_vt(y0)
+//
+fun
+<x0:vt>
+<y0:vt>
+mapoptn$fopr1(x0: !x0): optn_vt(y0)
+fun
+<x0:vt>
+<y0:vt>
+maplist$fopr1(x0: !x0): list_vt(y0)
+fun
+<x0:vt>
+<y0:vt>
+mapstrm$fopr1(x0: !x0): strm_vt(y0)
+fun
+<x0:vt>
+<y0:vt>
+mapstrq$fopr1(x0: !x0): strq_vt(y0)
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2024-07-31:
+It is in [gbas001.sats]!
+fun
+<x0:vt> // HX: vt!
+fmake$fwork((*void*)): void
+*)
+fun
+<x0:vt>
+fmake$fwork$work0(x0: ~x0): void
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+<x0:vt>
+c2hoose$forall$test0(~x0, ~x0): bool
+fun
+<x0:vt>
+c3hoose$forall$test0(~x0, ~x0, ~x0): bool
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2026-04-16:
+Thu Apr 16 01:52:12 AM EDT 2026
+For instance,
+[gasq_sortedq] uses [sortedq$lteq1]
+*)
+fun
+<x0:vt>
+sortedq$lteq1(x1: !x0, x2: !x0): bool
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2026-04-06:
+Mon Apr  6 03:26:51 PM EDT 2026
+*)
+fun
+<x0:vt>
+<e1:vt>
+forall$e1nv$work0(x0: ~x0, e1: !e1): bool
+fun
+<x0:vt>
+<e1:vt>
+forall$e1nv$work1(x0: !x0, e1: !e1): bool
+//
+fun
+<x0:vt>
+<e1:vt>
+foritm$e1nv$work0(x0: ~x0, e1: !e1): void
+fun
+<x0:vt>
+<e1:vt>
+foritm$e1nv$work1(x0: !x0, e1: !e1): void
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(*
+HX-2025-05-31:
+Sat May 31 08:14:34 PM EDT 2025
+*)
+//
+fun
+<x0:vt>
+<y0:vt>
+<e1:vt>
+map$e1nv$fopr0(x0: ~x0, e1: !e1): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+<e1:vt>
+map$e1nv$fopr1(x0: !x0, e1: !e1): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+<e1:vt>
+map$e1nv$fopr1x(x0: &x0, e1: !e1): ( y0 )
+//
+fun
+<x0:vt>
+<y0:vt>
+<e1:vt>
+rmap$e1nv$fopr0(x0: ~x0, e1: !e1): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+<e1:vt>
+rmap$e1nv$fopr1(x0: !x0, e1: !e1): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+<e1:vt>
+rmap$e1nv$fopr1x(x0: &x0, e1: !e1): ( y0 )
+//
+fun
+<x0:vt>
+<y0:vt>
+<e1:vt>
+imap$e1nv$fopr0(ni, ~x0, e1: !e1): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+<e1:vt>
+imap$e1nv$fopr1(ni, !x0, e1: !e1): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+<e1:vt>
+imap$e1nv$fopr1x(ni, &x0, e1: !e1): ( y0 )
+//
+fun
+<x0:vt>
+<y0:vt>
+<e1:vt>
+irmap$e1nv$fopr0(ni, ~x0, e1: !e1): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+<e1:vt>
+irmap$e1nv$fopr1(ni, !x0, e1: !e1): ( y0 )
+fun
+<x0:vt>
+<y0:vt>
+<e1:vt>
+irmap$e1nv$fopr1x(ni, &x0, e1: !e1): ( y0 )
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(***********************************************************************)
+(* end of [ATS3/XANADU_prelude_SATS_VT_gbas001_vt.sats] *)
+(***********************************************************************)
